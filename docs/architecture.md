@@ -6,7 +6,7 @@ LeadPilot has four parts. **Supabase is the single source of truth**: the admin 
 flowchart TB
   subgraph Browser
     AP[LeadPilot Admin Panel<br/>admin-panel.html]
-    WS[Customer website + Maya widget<br/>legalgraph-ai.html]
+    WS[Customer website + Maya widget<br/>acme-cloud.html]
   end
   subgraph Supabase
     AUTH[Auth<br/>admin login]
@@ -49,7 +49,7 @@ Public sign-ups are disabled. Vector search refuses to run unless a `company_id`
 
 | Table | Holds | Written by |
 |---|---|---|
-| `companies` | Customer companies (one: LegalGraph AI) | seed |
+| `companies` | Customer companies (one: the fictional Acme Cloud) | seed |
 | `company_admins` | Which login administers which company | SQL (sign-ups off) |
 | `agent_config` | Agent name, greeting, avatar, tone, company description, crawl-generated context draft | Admin panel · n8n (draft) |
 | `guardrails` | Allowed and blocked topics, restricted claims, fallback, escalation rule, PII rule | Admin panel |

@@ -1,4 +1,4 @@
-"""Rebuild legalgraph-ai.html (single self-contained file) from source/.
+"""Rebuild acme-cloud.html (single self-contained file) from source/.
 
 Inlines css/*.css and js/*.js into index.html and embeds assets/bear.gif as
 base64, so the output works when opened, moved or emailed on its own.
@@ -11,7 +11,7 @@ import re
 
 HERE = pathlib.Path(__file__).parent
 SRC = HERE / "source"
-OUT = HERE / "legalgraph-ai.html"
+OUT = HERE / "acme-cloud.html"
 
 
 def main():

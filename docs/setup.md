@@ -84,6 +84,6 @@ Run [`supabase/06_ingest_trigger.sql`](../supabase/06_ingest_trigger.sql) after 
 
 ## 7. Load knowledge and test
 
-1. Open the admin panel, sign in, and upload [`knowledge-base/legalgraph-product-guide.pdf`](../knowledge-base/legalgraph-product-guide.pdf). Wait for **Ready**.
-2. Open `website/legalgraph-ai.html` and ask Maya *"How much is the Team plan?"*
+1. Open the admin panel, sign in, and upload [`knowledge-base/acme-cloud-product-guide.pdf`](../knowledge-base/acme-cloud-product-guide.pdf). Wait for **Ready**.
+2. Open `website/acme-cloud.html` and ask Maya *"How much is the Starter plan?"*
 3. Run the evals: `python3 evals/run_evals.py` (see [`evals/`](../evals/)).

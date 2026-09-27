@@ -4,7 +4,7 @@ The complete database for LeadPilot: tables, security, storage, vector search an
 
 | File | What it does |
 |---|---|
-| `01_tables.sql` | `companies`, `agent_config`, `guardrails`, `kb_sources`, `updated_at` triggers, RLS switched on, LegalGraph demo seed |
+| `01_tables.sql` | `companies`, `agent_config`, `guardrails`, `kb_sources`, `updated_at` triggers, RLS switched on, Acme Cloud demo seed |
 | `02_security.sql` | `company_admins` guest list, RLS policies, anonymous lockdown, `public_agent_profile` view for the widget |
 | `03_storage.sql` | `kb-documents` (private, 25 MB, PDF/DOCX) and `avatars` (public, 2 MB, images) buckets + per-company folder policies |
 | `04_admin_user.sql` | Adds your admin login (created in Authentication → Users) to the guest list |

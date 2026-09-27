@@ -13,9 +13,14 @@ The product and technical decisions made while building the LeadPilot prototype:
 - **Trade-off:** A less flashy demo. Voice goes back on the roadmap once conversion data shows it matters.
 
 ### D2 · The admin panel is LeadPilot's; the customer is a "workspace"
-- **Context:** The admin panel was styled with the demo customer's brand (LegalGraph).
+- **Context:** The admin panel was styled with the demo customer's brand.
 - **Decision:** Brand the panel as **LeadPilot** and show the customer company as the active *workspace*, loaded from the database.
 - **Why:** It's a B2B SaaS. The admin UI belongs to the vendor, and the widget belongs to the customer. Getting this right makes the multi-tenant model obvious.
+
+### D2b · A clearly fictional demo customer (Acme Cloud)
+- **Context:** The first demo customer was an invented legal-tech brand. An invented name that happens to match a real company could look like impersonation on a public portfolio, and legal-tech narrowed the audience.
+- **Decision:** Demo the agent on **Acme Cloud**, a fictional B2B customer-analytics SaaS (with the classic sample companies Northwind, Contoso and others as its "customers"), plus a `.example` domain.
+- **Why:** Nobody mistakes Acme for a real company. B2B SaaS pricing, integrations and security questions are exactly what LeadPilot's buyers field every day.
 
 ### D3 · Honest statuses over a fake "Ready"
 - **Context:** The prototype animated every upload to "Ready" after two seconds.

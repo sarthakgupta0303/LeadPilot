@@ -74,17 +74,17 @@ alter table public.agent_config enable row level security;
 alter table public.guardrails   enable row level security;
 alter table public.kb_sources   enable row level security;
 
--- ============ 7. Starting data: LegalGraph + the admin-panel defaults ============
+-- ============ 7. Starting data: Acme Cloud (fictional demo company) + admin-panel defaults ============
 with c as (
   insert into public.companies (name, website_url)
-  values ('LegalGraph AI', 'https://www.legalgraph.ai')
+  values ('Acme Cloud', 'https://www.acme-cloud.example')
   returning id
 ), a as (
   insert into public.agent_config (company_id, agent_name, greeting, avatar_style, tone, company_description)
   select id, 'Maya',
          'Hi, I''m Maya 👋 Ask me anything about our product, pricing, or book a demo.',
          'bear', 'professional',
-         'LegalGraph AI maps contracts, case law and regulations into a living knowledge graph, so legal teams can research faster, spot risk earlier, and get every answer with a citation back to the source. We sell to legal and compliance teams at mid-market and enterprise companies.'
+         'Acme Cloud is a customer analytics platform for B2B software companies. It connects product usage, billing and CRM data into live dashboards, smart alerts and AI insights, so teams spot churn earlier and find expansion revenue faster. We sell to revenue operations, customer success, product and finance teams at B2B SaaS companies.'
   from c
 )
 insert into public.guardrails (company_id, allowed_topics, blocked_topics, restricted_claims,

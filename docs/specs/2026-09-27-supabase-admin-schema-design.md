@@ -10,7 +10,7 @@ Success = edit any field in the admin panel → **Save changes** → the value i
 
 ## Context and constraints
 
-- Mock / prototype. One admin (the project owner), one company (LegalGraph).
+- Mock / prototype. One admin (the project owner), one company (Acme Cloud).
 - Admin panel stays a single self-contained HTML file with no build step.
 - A new, dedicated Supabase project is created for LeadPilot.
 - `company_id` is kept on every table so the schema matches the PRD's multi-company model, even though only one company row exists.
@@ -31,7 +31,7 @@ The admin user is created by hand in the Supabase dashboard; there is no sign-up
 ### `companies`
 `id uuid pk`, `name text`, `website_url text`, `created_at timestamptz`
 
-Seeded with one row: LegalGraph AI, `https://www.legalgraph.ai`.
+Seeded with one row: Acme Cloud (fictional demo company), `https://www.acme-cloud.example`.
 
 ### `agent_config` (one row per company)
 | Column | Panel field | Notes |

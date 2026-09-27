@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Acme Cloud — Product Guide</title>
+<style>
+  @page { size: A4; margin: 18mm 18mm 20mm; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #0d1526; font-size: 10.5pt; line-height: 1.5; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: #1f4fd8; }
+  h2 { font-size: 14pt; margin: 22px 0 6px; border-bottom: 1px solid #d3d9e6; padding-bottom: 4px; page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 14px 0 4px; }
+  p, li { margin: 4px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 10pt; }
+  th, td { border: 1px solid #d3d9e6; padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: #eef1f9; }
+  .sub { color: #67718a; margin: 0 0 14px; }
+  .note { font-size: 9pt; color: #67718a; border-top: 1px solid #d3d9e6; margin-top: 26px; padding-top: 8px; }
+  .page-break { page-break-before: always; }
+</style>
+</head>
+<body>
+
+<h1>Acme Cloud — Product Guide</h1>
+<p class="sub">Product, pricing, security and FAQ · Version 2026.3</p>
+
+<h2>1. Product overview</h2>
+<p>Acme Cloud is a customer analytics platform for B2B software companies. It connects product usage, billing and CRM data into one live model of every account, user and dollar, then turns it into dashboards, smart alerts and AI-powered insights.</p>
+<p>Teams use Acme Cloud to spot churn risk earlier, find expansion revenue, and stop rebuilding the same reports in spreadsheets every week.</p>
+<p><strong>Who it is for:</strong> revenue operations, customer success, product and finance teams at B2B SaaS companies, from 20-person startups to enterprises with thousands of employees.</p>
+
+<h2>2. Core features</h2>
+<h3>Ask your data</h3>
+<p>Ask questions in plain language (for example "Which accounts are at churn risk this quarter?") and get the number, the chart and the list of accounts behind it. Every answer shows the underlying metric definition and data source.</p>
+<h3>Live revenue dashboards</h3>
+<p>Ready-made dashboards for MRR, ARR, net revenue retention, expansion, contraction, churn and cohort retention. Dashboards update continuously as events arrive, with no SQL required.</p>
+<h3>Customer health scores</h3>
+<p>A health score for every account, combining product usage, support tickets and billing signals. Health weights can be customised on the Growth and Enterprise plans.</p>
+<h3>Smart alerts</h3>
+<p>Get notified in Slack, Microsoft Teams or email when a key account's usage drops, a trial converts, a payment fails or usage spikes. Available on the Growth and Enterprise plans.</p>
+<h3>AI insights</h3>
+<p>Weekly AI-written summaries explain what changed in your metrics and why, with links to the accounts driving the change. Available on the Growth and Enterprise plans.</p>
+<h3>Governed metrics</h3>
+<p>Every metric is defined once in a shared metrics layer and every query is logged, so finance, sales and product work from the same numbers.</p>
+
+<h2>3. How it works</h2>
+<ol>
+  <li><strong>Connect</strong> — plug in your data sources in minutes, with no engineering project.</li>
+  <li><strong>Model</strong> — Acme Cloud automatically unifies accounts, users and revenue across sources and keeps them current.</li>
+  <li><strong>Act</strong> — dashboards, alerts and AI insights your whole team can trust.</li>
+</ol>
+<p>Data syncs every 15 minutes on Starter and in near real time (under 1 minute) on Growth and Enterprise.</p>
+
+<h2>4. Integrations</h2>
+<p>Native connectors: <strong>Stripe, Chargebee, Salesforce, HubSpot, Segment, Snowflake, BigQuery, PostgreSQL, Zendesk, Intercom and Slack</strong>. Product events can also be sent through the Acme Cloud JavaScript and Python SDKs or the REST events API. Dashboards can be exported to Google Sheets and CSV. A warehouse is not required, but if you have Snowflake or BigQuery, Acme Cloud can read from it directly.</p>
+
+<div class="page-break"></div>
+<h2>5. Pricing</h2>
+<table>
+  <tr><th>Plan</th><th>Price</th><th>Includes</th></tr>
+  <tr><td><strong>Starter</strong></td><td>$49 per user per month</td><td>Up to 10 users · 5 data sources · 1 million events per month · ready-made dashboards · email support (next business day). For small teams replacing spreadsheet reporting.</td></tr>
+  <tr><td><strong>Growth</strong> (most popular)</td><td>$99 per user per month</td><td>Unlimited users · 25 data sources · 20 million events per month · AI insights and smart alerts · custom health scores · priority support (chat and email, 4-hour response). For scaling companies running revenue and product on data.</td></tr>
+  <tr><td><strong>Enterprise</strong></td><td>Custom pricing</td><td>Unlimited events and data sources · SSO (SAML) and SCIM user provisioning · custom data retention · dedicated customer success manager · 99.99% uptime SLA. For global companies with advanced security needs.</td></tr>
+</table>
+<p><strong>Billing:</strong> monthly or annual; annual billing saves 15%. Prices are in US dollars and exclude applicable taxes.</p>
+<p><strong>Free trial:</strong> Starter and Growth include a 14-day free trial, no credit card required. Enterprise starts with a 30-minute demo with our team.</p>
+<p><strong>Extra events:</strong> if you go over your monthly event limit, we never cut off data; we contact you to discuss moving to the next plan.</p>
+
+<h2>6. Security and privacy</h2>
+<ul>
+  <li>SOC 2 Type II audited; the report is available under NDA.</li>
+  <li>GDPR-ready, with a data processing agreement (DPA) available on request.</li>
+  <li>Encryption in transit (TLS 1.2+) and at rest (AES-256).</li>
+  <li>Role-based access control and a full audit log of every query and change.</li>
+  <li>Your data is never used to train AI models shared across customers.</li>
+  <li>Data residency: choose US or EU hosting when you sign up.</li>
+  <li>Uptime: 99.95% over the last 12 months.</li>
+</ul>
+
+<h2>7. Onboarding and support</h2>
+<p>Most teams see their first live dashboard the same day they connect a data source. Starter customers onboard self-serve with guided setup. Growth customers get a 60-minute onboarding call. Enterprise customers get a dedicated customer success manager and a structured 30-day rollout plan.</p>
+
+<h2>8. Results customers report</h2>
+<ul>
+  <li>3× faster weekly reporting.</li>
+  <li>1,200+ B2B teams onboard.</li>
+  <li>40 billion events processed every month.</li>
+</ul>
+<p>"We replaced four spreadsheets and a weekly reporting meeting. Now the churn alert reaches the account manager before the customer even thinks about leaving." — VP Revenue Operations, Northwind</p>
+
+<h2>9. Frequently asked questions</h2>
+<h3>How is Acme Cloud different from a BI tool?</h3>
+<p>BI tools need a data team to model everything first. Acme Cloud ships with a ready-made model of accounts, users and revenue, so you get answers on day one.</p>
+<h3>Do I need a data warehouse?</h3>
+<p>No. Connect your tools directly. If you already have Snowflake or BigQuery, Acme Cloud can read from it too.</p>
+<h3>Is my data used to train shared AI models?</h3>
+<p>No. Your data and questions are never used to train models shared across customers.</p>
+<h3>How long does setup take?</h3>
+<p>Most teams see their first live dashboard the same day they connect a data source.</p>
+<h3>How do I book a demo?</h3>
+<p>Book a 30-minute walkthrough with our team from the website, or ask the assistant to connect you with sales.</p>
+
+<p class="note">Acme Cloud is a fictional company created as demo data for the LeadPilot AI prototype. All names, figures and customers in this guide are illustrative.</p>
+</body>
+</html>

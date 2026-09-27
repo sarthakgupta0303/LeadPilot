@@ -6,4 +6,4 @@ select u.id, c.id
 from auth.users u
 cross join public.companies c
 where u.email = 'your-email@example.com'
-  and c.name = 'LegalGraph AI';
+  and c.name = 'Acme Cloud';

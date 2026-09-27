@@ -1,5 +1,5 @@
 /* =========================================================
-   LegalGraph AI — Avatar chat widget (prototype)
+   LeadPilot AI — chat widget (embedded on the Acme Cloud demo site)
    Plain JavaScript, no dependencies. Chat only.
    ========================================================= */
 (function () {
@@ -9,7 +9,7 @@
   const CONFIG = {
     agentName: "Maya",
     chatGreeting:
-      "Hi, I'm Maya 👋 Ask me anything about LegalGraph AI — research, contract review, pricing or booking a demo.",
+      "Hi, I'm Maya 👋 Ask me anything about Acme Cloud — features, pricing, security or booking a demo.",
     // LeadPilot backend: n8n Workflow B (agentic RAG) + the public agent profile in Supabase.
     companyId: "3fbdd46d-e940-4bc9-93cf-7013f7ff216d",
     chatEndpoint: "https://sarthak03.app.n8n.cloud/webhook/maya-chat",
@@ -295,5 +295,5 @@
   setTimeout(showBubble, 1800);
 
   // Expose a tiny API for later integration / testing
-  window.LegalGraphWidget = { open: openWidget, close: closeWidget, send: handleUserMessage, config: CONFIG };
+  window.LeadPilotWidget = { open: openWidget, close: closeWidget, send: handleUserMessage, config: CONFIG };
 })();
