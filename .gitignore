@@ -1,0 +1,16 @@
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Python
+__pycache__/
+*.pyc
+
+# Secrets — never commit (keys live in n8n credentials and Supabase Vault)
+.env
+.env.*
+*.local.*
+
+# Stock photo of a real person with unknown licence — not used by the widget
+website/source/assets/avatar.jpg
