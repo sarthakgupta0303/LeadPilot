@@ -2,7 +2,10 @@
 // Turn the admin-panel settings (agent_config + guardrails) into Maya's instructions.
 // Rebuilt on every message, so a guardrail saved in the admin panel applies to the next reply.
 const ctx = $('Load context').first().json;
-const input = $('Validate input').first().json;
+// Read the visitor's request from the Webhook itself (already checked by "Validate input"),
+// so this node doesn't break if other nodes are renamed.
+const body = $('Webhook').first().json.body || {};
+const input = { message: String(body.message || '').trim(), company_id: String(body.company_id || '').trim() };
 const a = ctx.agent || {};
 const g = ctx.guardrails || {};
 const list = (arr) => (arr && arr.length ? arr.map((x) => '- ' + x).join('\n') : '- (none)');
@@ -27,7 +30,7 @@ Be ${TONE[a.tone] || 'professional'}. Keep answers short (2-5 sentences), plain 
 1. For any question about the company, its products, pricing, security, integrations, onboarding or use cases, ALWAYS call the search_knowledge_base tool first.
 2. Answer ONLY with facts from the tool results or the Company section. Never use outside knowledge. Never guess.
 3. If the results don't answer the question, search again with different wording (max 3 searches in total).
-4. If you still can't find it, reply with exactly: "${fallback}"
+4. If you still can't find it, reply with exactly: "${fallback}". This includes features, integrations, prices or policies the knowledge base does not mention: do not speculate about workarounds, APIs or "possible" options.
 5. When you use a source, mention it at the end, e.g. (Source: Pricing-Guide.pdf, p. 3) or (Source: https://example.com/pricing).
 
 ## Topics you may discuss

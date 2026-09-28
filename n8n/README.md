@@ -1,5 +1,7 @@
 # n8n workflows
 
+> 📘 **Start here for the full story:** [workflow deep dives with diagrams and real traces](../docs/workflows/README.md) and the [build journal](../docs/build-journal.md). This page is the compact technical reference.
+
 LeadPilot's two back-end workflows run on n8n Cloud. Supabase is the source of truth; n8n does the work.
 
 | Workflow | Trigger | Job |

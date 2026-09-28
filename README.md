@@ -4,14 +4,14 @@
 
 A product-management case study, taken from problem definition to a working, evaluated AI system: **PRD → prototype → data model → workflow automation → agentic RAG → evaluation.**
 
-[PRD](docs/PRD.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Workflows](n8n/README.md) · [Evaluation](evals/README.md) · [Run it yourself](docs/setup.md)
+[PRD](docs/PRD.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Run it yourself](docs/setup.md)
 
 | | |
 |---|---|
 | **My role** | Product manager and builder (solo cohort project): discovery, PRD, prioritisation, UX, system design, prompt and agent design, evaluation |
 | **Demo customer** | **Acme Cloud**, a *fictional* B2B analytics SaaS. Its website runs LeadPilot's assistant, **Maya** |
 | **Stack** | Supabase (Postgres, pgvector, Auth, Storage, RLS) · n8n (workflow automation, AI Agent) · OpenAI (GPT + embeddings) · HTML/JS |
-| **Status** | Admin panel, database, ingestion workflow and widget built · agent workflow being built · evals ready to run · qualification next |
+| **Status** | ✅ Live end to end: admin panel → ingestion → agentic RAG agent → website widget · evals ready to run · qualification next |
 
 | Prospect's view: Maya on Acme Cloud's website | Admin's view: the LeadPilot admin panel |
 |---|---|
@@ -59,7 +59,9 @@ flowchart LR
 
 ## 4. Workflow automation (n8n)
 
-Two event-driven workflows do all the AI work. Business logic lives in four small SQL functions, so each workflow step is a single call. → [Node-by-node docs](n8n/README.md)
+Two event-driven workflows do all the AI work. Business logic lives in four small SQL functions, so each workflow step is a single call.
+
+→ **Deep dives with full flow diagrams, node-by-node explanations and real traces:** [Workflows overview](docs/workflows/README.md) · [Workflow A: ingestion](docs/workflows/workflow-a-kb-ingestion.md) · [Workflow B: agentic RAG](docs/workflows/workflow-b-agentic-rag.md)
 
 ### Workflow A: Knowledge ingestion (event-driven ETL)
 
@@ -172,8 +174,8 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 |---|---|
 | Problem definition, PRD, prioritisation, roadmap | ✅ |
 | Admin panel on Supabase (auth, RLS, agent config, guardrails, KB management) | ✅ |
-| Workflow A: knowledge ingestion (PDF/DOCX + website crawl → pgvector) | ✅ built · 🟡 live test in progress |
-| Workflow B: agentic RAG agent with three-layer guardrails | 🟡 designed and documented · being built |
+| Workflow A: knowledge ingestion (PDF/DOCX + website crawl → pgvector) | ✅ live: Acme Cloud guide → 9 labelled chunks |
+| Workflow B: agentic RAG agent with three-layer guardrails | ✅ live: cited answers, declines, saved turns ([traces](docs/workflows/workflow-b-agentic-rag.md#real-traces-from-the-live-agent)) |
 | Website widget wired to the agent and the admin settings | ✅ |
 | Evaluation suite (27 cases + runner) | ✅ built · results pending |
 | **Next:** lead qualification, conversation insights, leads view (the PRD's differentiator) | ⏭️ |
@@ -181,7 +183,7 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 
 ## 11. What I learned
 
-- **Configuration is a product surface.** The biggest delays weren't AI problems: placeholder values pasted into settings, and a test URL used instead of a production one. I made the pipeline *fail soft* (a bad setting never blocks an upload) and *fail loud* (Failed + reason). For a real product, these become validation and "test connection" features.
+- **Configuration is a product surface** ([build journal](docs/build-journal.md)). The biggest delays weren't AI problems: placeholder values pasted into settings, and a test URL used instead of a production one. I made the pipeline *fail soft* (a bad setting never blocks an upload) and *fail loud* (Failed + reason). For a real product, these become validation and "test connection" features.
 - **Honest beats magical.** Removing the fake "Ready" animation made the product look less polished and made it more trustworthy. For an AI product, trust *is* the product.
 - **Writing evals is product discovery.** Drafting the golden set exposed the annual-discount conflict before any user hit it. Guardrails need intent, examples and exceptions, not keyword lists.
 - **Cutting scope sharpened the story.** Dropping voice made room to build the parts that differentiate: grounded answers, controllable guardrails, and next, qualification.
@@ -193,7 +195,7 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 <summary><strong>Repo map</strong></summary>
 
 ```
-docs/            PRD, architecture, decision log, setup guide, design spec, screenshots
+docs/            PRD, workflow deep dives (diagrams), build journal, architecture, decision log, setup guide
 admin-panel/     LeadPilot admin panel (single HTML file, Supabase JS)
 website/         Acme Cloud demo site + Maya widget (source/ + single-file build)
 supabase/        All SQL: tables, RLS, storage, pgvector + RAG functions, ingestion trigger
