@@ -4,7 +4,7 @@
 
 A product-management case study, taken from problem definition to a working, evaluated AI system: **PRD → prototype → data model → workflow automation → agentic RAG → evaluation.**
 
-[PRD](docs/PRD.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Run it yourself](docs/setup.md)
+[PRD](docs/PRD.md) · [Admin panel flow](docs/workflows/admin-panel.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Run it yourself](docs/setup.md)
 
 | | |
 |---|---|
@@ -54,6 +54,20 @@ flowchart LR
   B -- grounded reply + sources --> W
   A & B <--> O[OpenAI<br/>GPT + embeddings]
 ```
+
+### Data flow: from the admin panel to the agent on the website
+
+![Data flow from admin panel to the agent](docs/images/diagrams/00-data-flow-admin-to-agent.png)
+
+1. **The admin enters** the persona (name, greeting, tone, company description), the **guardrails** (blocked topics, restricted claims, fallback, escalation, PII rule) and the **knowledge** (PDFs, website).
+2. **Supabase stores it**, per company, behind row-level security.
+3. **Workflow A prepares the knowledge**: chunk → embed → label → pgvector.
+4. **Workflow B feeds everything to the agent on every message**: load settings and history → build the rules → the intent router blocks forbidden topics → the agent searches the knowledge → the post-check blocks forbidden claims.
+5. **The prospect sees** Maya's name and greeting, plus a grounded, cited answer, or an honest fallback.
+
+Guardrail changes apply on the **next message**; new knowledge after about **30 seconds** (once *Ready*). → [Full walkthrough](docs/workflows/admin-panel.md#data-flow-in-one-picture-from-the-admin-panel-to-the-agent-on-the-website)
+
+**The admin panel is the control room.** Admins sign in, configure the agent's persona and guardrails, and manage its knowledge. The panel only talks to Supabase (never to n8n or the AI), and every setting maps to a specific effect on the agent. → [Admin panel: screens, connections and flows](docs/workflows/admin-panel.md)
 
 **Supabase is the single source of truth.** When an admin saves a guardrail, the agent applies it to the **very next** message, with no deploy and no sync job. Security is real rather than mocked: admin sign-in, Row Level Security on every table, visitors limited to a 6-field public view, and company-scoped vector search enforced *inside the database*. → [Architecture](docs/architecture.md)
 

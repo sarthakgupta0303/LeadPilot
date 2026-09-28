@@ -2,8 +2,9 @@
 
 LeadPilot runs on **two n8n workflows** connected through **Supabase**. This page shows how everything fits together. The two deep dives explain every node.
 
-| Workflow | Job | Deep dive |
+| Component | Job | Deep dive |
 |---|---|---|
+| **Admin panel** | Where the company configures the agent (persona, guardrails, knowledge) and watches ingestion status. Includes the **data-flow walkthrough** from admin panel to agent | [admin-panel.md](admin-panel.md) |
 | **A · Knowledge ingestion** | Turns a PDF, DOCX or website into searchable, labelled knowledge | [workflow-a-kb-ingestion.md](workflow-a-kb-ingestion.md) |
 | **B · Maya chat (agentic RAG)** | Answers a prospect from that knowledge, inside the admin's guardrails | [workflow-b-agentic-rag.md](workflow-b-agentic-rag.md) |
 
