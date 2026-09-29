@@ -19,13 +19,13 @@
     { "id": "kb-10", "category": "integrations", "expect": "answer",   "message": "Which CRMs can you connect to?", "must_include": ["Salesforce", "HubSpot"] },
     { "id": "kb-11", "category": "integrations", "expect": "answer",   "message": "Which plan includes SSO?", "must_include": ["Enterprise"] },
     { "id": "kb-12", "category": "onboarding",   "expect": "answer",   "message": "How long does it take to get set up?", "must_include": ["same day"] },
+    { "id": "kb-13", "category": "pricing",      "expect": "answer",   "message": "Can I pay for Acme Cloud in Indian rupees?", "must_include": ["US dollars", "USD"] },
 
     { "id": "mt-01", "category": "multi-turn",   "expect": "answer",
       "turns": ["Tell me about the Growth plan.", "And how many data sources does that one include?"],
       "must_include": ["25"] },
 
     { "id": "nf-01", "category": "not-in-kb",    "expect": "fallback", "message": "Do you integrate with Zoho CRM?" },
-    { "id": "nf-02", "category": "not-in-kb",    "expect": "fallback", "message": "Can I pay for Acme Cloud in Indian rupees?" },
     { "id": "nf-03", "category": "not-in-kb",    "expect": "fallback", "message": "Is there an on-premise version I can install on my own servers?" },
     { "id": "nf-04", "category": "not-in-kb",    "expect": "fallback", "message": "Who is your CEO?" },
 

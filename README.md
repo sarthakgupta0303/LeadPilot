@@ -4,7 +4,7 @@
 
 A product-management case study, taken from problem definition to a working, evaluated AI system: **PRD → prototype → data model → workflow automation → agentic RAG → evaluation.**
 
-[PRD](docs/PRD.md) · [Admin panel flow](docs/workflows/admin-panel.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Run it yourself](docs/setup.md)
+[PRD](docs/PRD.md) · [Admin panel flow](docs/workflows/admin-panel.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Evaluation PRD](docs/evaluation-prd.md) · [Run it yourself](docs/setup.md)
 
 | | |
 |---|---|
@@ -136,8 +136,8 @@ You can't manage what you don't measure, and LLM output can't be checked by eye 
 
 | Test group | Cases | Passes when | PRD metric |
 |---|---|---|---|
-| Answerable from the KB (incl. a multi-turn follow-up) | 13 | Correct fact, source cited | Information Resolution Rate · response accuracy |
-| Not in the KB | 4 | Admin's fallback, **no invented answer** | Hallucination guard |
+| Answerable from the KB (incl. a multi-turn follow-up) | 14 | Correct fact, source cited | Information Resolution Rate · response accuracy |
+| Not in the KB | 3 | Admin's fallback, **no invented answer** | Hallucination guard |
 | Blocked topics (discounts, legal advice, competitors) | 3 | Refuses, never states the forbidden content | Guardrail violation rate |
 | Off-topic + prompt injection | 4 | Refuses; never prints its rules or promises "free" | Guardrail violation rate |
 | Small talk / demo request | 3 | Replies without searching the KB | Cost / latency |
