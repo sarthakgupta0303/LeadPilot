@@ -132,6 +132,9 @@ def main(paths):
     for path in paths:
         with open(path, encoding="utf-8") as f:
             wf = json.load(f)
+        if not isinstance(wf, dict) or "nodes" not in wf:
+            print(f"\n{path}: not an n8n workflow export, skipped")
+            continue
         problems = check(wf)
         total += len(problems)
         print(f"\n{wf.get('name', path)}  ({path})")
