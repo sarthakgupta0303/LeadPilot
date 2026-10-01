@@ -12,7 +12,7 @@
       "Hi, I'm Maya 👋 Ask me anything about Acme Cloud — features, pricing, security or booking a demo.",
     // LeadPilot backend: n8n Workflow B (agentic RAG) + the public agent profile in Supabase.
     companyId: "3fbdd46d-e940-4bc9-93cf-7013f7ff216d",
-    chatEndpoint: "https://sarthak03.app.n8n.cloud/webhook/maya-chat",
+    chatEndpoint: "https://ankita301.app.n8n.cloud/webhook/maya-chat",
     supabaseUrl: "https://fgzfeylyhtnsjxxjytdr.supabase.co",
     supabaseKey: "sb_publishable_V9ae9T9b1D0KrbxszfmOTw_XVxfsMA7", // public key; RLS only exposes public_agent_profile
     replyTimeoutMs: 45000,
