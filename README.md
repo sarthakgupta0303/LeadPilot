@@ -191,7 +191,7 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 | Workflow A: knowledge ingestion (PDF/DOCX + website crawl → pgvector) | ✅ live: Acme Cloud guide → 9 labelled chunks |
 | Workflow B: agentic RAG agent with three-layer guardrails | ✅ live: cited answers, declines, saved turns ([traces](docs/workflows/workflow-b-agentic-rag.md#real-traces-from-the-live-agent)) |
 | Website widget wired to the agent and the admin settings | ✅ |
-| Evaluation suite (27 cases + runner) | ✅ built · results pending |
+| Evaluation suite (27 cases + runner) | ✅ built · first live runs 2026-09-30: 24/27, Honest still failing → [results](evals/README.md#results) |
 | **Next:** lead qualification, conversation insights, leads view (the PRD's differentiator) | ⏭️ |
 | Later: CRM handoff, demo booking, analytics, signed embed snippet | 🗓️ |
 
