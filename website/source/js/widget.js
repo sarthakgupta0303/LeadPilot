@@ -106,7 +106,7 @@
     return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   }
 
-  function addMessage(role, text) {
+  function addMessage(role, text, trace) {
     const row = document.createElement("div");
     row.className = "lgw-msg" + (role === "user" ? " is-user" : "");
 
@@ -126,12 +126,87 @@
     meta.className = "lgw-msg-time";
     meta.textContent = timeNow();
     wrap.appendChild(body);
+    if (role === "bot" && trace) {
+      const t = buildTrace(trace);
+      if (t) wrap.appendChild(t);
+    }
     wrap.appendChild(meta);
     row.appendChild(wrap);
 
     messagesEl.appendChild(row);
     scrollMessages();
     return row;
+  }
+
+  /* ---------------- "Source" and "How I answered" under each reply ----------------
+     Both come from what the workflow actually did (n8n "Explain answer" step), not from the model
+     explaining itself. Collapsed by default so the chat stays clean. All text is set with
+     textContent, never innerHTML. */
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function buildTrace(trace) {
+    const sources = Array.isArray(trace.source_details) ? trace.source_details : [];
+    const r = trace.reasoning;
+    if (!sources.length && !r) return null;
+
+    const box = el("div", "lgw-trace");
+    const bar = el("div", "lgw-trace-bar");
+    const panels = [];
+
+    function addToggle(label, panel) {
+      const btn = el("button", "lgw-trace-btn", label);
+      btn.type = "button";
+      btn.setAttribute("aria-expanded", "false");
+      panel.hidden = true;
+      btn.addEventListener("click", () => {
+        const open = panel.hidden;
+        panels.forEach((p) => { p.panel.hidden = true; p.btn.setAttribute("aria-expanded", "false"); });
+        panel.hidden = !open;
+        btn.setAttribute("aria-expanded", String(open));
+        scrollMessages();
+      });
+      bar.appendChild(btn);
+      panels.push({ btn, panel });
+    }
+
+    if (sources.length) {
+      const panel = el("div", "lgw-trace-panel");
+      sources.forEach((s) => {
+        const item = el("div", "lgw-trace-src");
+        const name = (s.source || "Knowledge base").replace(/\.(pdf|docx?)$/i, "").replace(/[-_]+/g, " ");
+        item.appendChild(el("div", "lgw-trace-src-name", name + (s.page ? " · page " + s.page : "")));
+        if (s.passage) item.appendChild(el("blockquote", "lgw-trace-quote", s.passage));
+        if (s.url && /^https?:\/\//.test(s.url)) {
+          const a = el("a", "lgw-trace-link", "Open page");
+          a.href = s.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+          item.appendChild(a);
+        }
+        panel.appendChild(item);
+      });
+      addToggle("📄 Source", panel);
+    }
+
+    if (r) {
+      const panel = el("div", "lgw-trace-panel");
+      const steps = el("ol", "lgw-trace-steps");
+      const add = (k, v) => { if (!v || (Array.isArray(v) && !v.length)) return; const li = el("li"); li.appendChild(el("span", "lgw-trace-k", k)); li.appendChild(el("span", "lgw-trace-v", Array.isArray(v) ? v.join(" · ") : v)); steps.appendChild(li); };
+      add("Understood as", r.understood_as);
+      add("Searched for", (r.searched_for || []).map((q) => "“" + q + "”"));
+      add("Found", (r.found || []).map((f) => f.replace(/\.(pdf|docx?)(?=:|$)/i, "").replace(/[-_]+/g, " ")));
+      add("Safety check", r.safety_check);
+      add("Result", r.outcome);
+      panel.appendChild(steps);
+      addToggle("🧭 How I answered", panel);
+    }
+
+    box.appendChild(bar);
+    panels.forEach((p) => box.appendChild(p.panel));
+    return box;
   }
 
   function showTyping() {
@@ -170,12 +245,12 @@
 
     getAgentReply(clean).then((reply) => {
       typing.remove();
-      addMessage("bot", reply);
+      addMessage("bot", reply.text, reply.trace);
       setBusy(false);
     });
   }
 
-  // Sends the message to n8n Workflow B. Always resolves with text to show (never rejects).
+  // Sends the message to n8n Workflow B. Always resolves with { text, trace } (never rejects).
   async function getAgentReply(userText) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), CONFIG.replyTimeoutMs);
@@ -192,11 +267,11 @@
         signal: controller.signal,
       });
       const data = await res.json().catch(() => ({}));
-      if (data.reply) return data.reply;
-      if (data.error) return "Sorry — " + data.error + ".";
-      return CONFIG.errorReply;
+      if (data.reply) return { text: data.reply, trace: { source_details: data.source_details, reasoning: data.reasoning } };
+      if (data.error) return { text: "Sorry — " + data.error + "." };
+      return { text: CONFIG.errorReply };
     } catch (_) {
-      return CONFIG.errorReply;
+      return { text: CONFIG.errorReply };
     } finally {
       clearTimeout(timer);
     }
