@@ -8,4 +8,5 @@ for (const step of out.intermediateSteps || []) {
   for (const m of text.matchAll(/"page_url"\s*:\s*"([^"]+)"/g)) sources.add(m[1]);
   for (const m of text.matchAll(/"source_name"\s*:\s*"([^"]+)"/g)) sources.add(m[1]);
 }
-return [{ json: { reply: out.output, sources: [...sources], flag: null } }];
+// trace_steps feeds "Explain answer" (source passages + reasoning); it's removed there before the reply is sent.
+return [{ json: { reply: out.output, sources: [...sources], flag: null, trace_steps: out.intermediateSteps || [] } }];

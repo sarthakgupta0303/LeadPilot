@@ -171,7 +171,7 @@ flowchart LR
 | Searches with the raw message | **Query rewriter** turns *"and how many sources does that one include?"* into *"Growth plan number of data sources"* |
 | One retrieval, then answers regardless | The **agent judges the results and re-searches** with new wording (max 3), then falls back instead of guessing |
 | Prompt-only safety | **Three guardrail layers** from the admin panel: rules in the prompt, a pre-check, and a post-check on the drafted reply |
-| No provenance | Every answer **cites its source** (document + page, or URL). Sources are stored per message |
+| No provenance | Every answer **cites its source**, and the widget shows **📄 Source** (the exact passage used) and **🧭 How I answered** (how the message was routed, what was searched, what was found, what the safety check decided). The trace is built from the workflow's real steps, not the model explaining itself, and is stored per message for human review |
 
 **Guardrails the customer controls.** Agent name, tone, company description, allowed and blocked topics, restricted claims, fallback message, escalation rule and PII rule are compiled into the agent's instructions on every message ([`b-build-rules.js`](n8n/code/b-build-rules.js)). A classifier blocks forbidden topics *before* the agent runs, and a second one reviews the reply *after*. Grounding rules come first: *answer only from retrieved content; if it isn't there, use the fallback.*
 

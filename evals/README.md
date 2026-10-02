@@ -54,6 +54,8 @@ First live runs: 2026-09-30, against Workflow B on n8n (`ankita301.app.n8n.cloud
 | Small talk handled | 3/3 | 3/3 | 3/3 |
 | Latency (median / p90) | 7.9s / 10.3s | 8.1s / 13.1s | 8.2s / 14.9s |
 
+**Run 3 (2026-10-02, after adding Source + Reasoning):** 23/27, with the same three known issues (nf-01, nf-03, gr-04), so no regressions. kb-04 failed once because **OpenAI returned a server error (HTTP 500)**. The workflow's error branch used the safe fallback instead of crashing, the new trace recorded it as `agent_error`, and an immediate re-run answered correctly. Next: retry-on-error on the agent step, so one provider error doesn't cost an answer. → [`results/2026-10-02-run3-source-reasoning.md`](results/2026-10-02-run3-source-reasoning.md)
+
 ### What failed, why, and what changed
 
 | Case | Run 1 finding | Root cause (from the n8n execution log) | Fix | After |

@@ -53,6 +53,8 @@ Set **On Error → Continue (using error output)** on nodes 4, 5, 7, 8, 10 and 1
 
 Run [`supabase/06_ingest_trigger.sql`](../supabase/06_ingest_trigger.sql) after replacing the two placeholders with Workflow A's **Production** URL (`…/webhook/kb-ingest`, **not** `webhook-test`) and your ingest secret. To change them later, go to **Integrations → Vault**.
 
+Then run [`supabase/07_answer_trace.sql`](../supabase/07_answer_trace.sql). It stores the source passages and reasoning behind each reply, which power the widget's **Source** and **How I answered** links.
+
 ## 5. Workflow B: Maya chat (Agentic RAG)
 
 | # | Node | Settings |
