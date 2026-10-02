@@ -431,3 +431,131 @@ Admin Panel config → KB upload → n8n ingestion → Supabase (Storage + pgvec
 | Iteration | Advanced intent scoring, personalized conversations, predictive qualification, automated follow-up | Ongoing |
 
 Evaluation plan and metrics instrumentation: [evaluation PRD](evaluation-prd.md).
+
+---
+
+## Week 3–4 — 5. Hypotheses and Minimum Evaluable Product (MEP)
+
+An MVP is what customers will pay for. An **MEP** is stricter: the smallest product that contains the **core AI risk**, produces data we can't get any other way, and can still be sold. If the MEP avoids the hard question, it isn't evaluating anything.
+
+| # | Hypothesis | We'll know it's true when… | Status |
+|---|---|---|---|
+| **H1 Answering** | If the agent answers prospects only from the company's own knowledge, with citations, prospects get what they need without waiting for sales | ≥ 80% correct, cited answers on the golden set; Information Resolution Rate ≥ 60% in beta | ✅ Tested: **14/14** correct and cited (2 runs) |
+| **H2 Trust** | If guardrails are set by the customer and checked before *and* after the answer, the agent never says what the company has forbidden, and says "I don't know" instead of guessing | 0 guardrail violations; ≥ 90% fallback instead of guessing on not-in-KB questions | ⚠️ Harmless ✅ (no forbidden content in any run) · Honest ❌ (1/3 fallback) |
+| **H3 Qualification** (the core risk) | If the agent extracts role, company size, need and timeline from the conversation and applies the company's rules, SDRs can trust its "Qualified" call | Precision on "Qualified" ≥ 80%, F1 ≥ 0.75, field agreement ≥ 85% vs human labels | ⏭️ Not built yet |
+
+**The MEP** is: knowledge-base answering with customer-controlled guardrails (H1, H2) **plus** qualification with human review (H3). H1 and H2 are live and evaluated. **H3 is the highest-risk, highest-value capability, so the MEP isn't complete until it's in.** It's the next build (see section 6).
+
+## 6. AI vs code vs human, and where the human sits
+
+Each step in the workflow goes to whoever does it best. The rule from the course: **put the human approval step where an action becomes irreversible, not wherever the AI seems risky.** A draft or a flag can be undone; a lead pushed to the CRM or an email to a prospect can't.
+
+| Step | AI | Code (deterministic) | Human |
+|---|---|---|---|
+| Understand the message (intent, follow-ups) | ✅ router + query rewriter | | |
+| Block forbidden topics | ✅ pre-check classifier | ✅ rate limit, input validation | Admin **sets** the topics |
+| Answer from the knowledge base | ✅ agent + vector search | ✅ company-scoped filter in SQL | |
+| Check the drafted answer | ✅ post-check classifier | ✅ fallback if unsure (fail closed) | |
+| "I can't answer that" | | | ✅ **hand-off**: "let me connect you with the team" |
+| Extract lead fields (role, size, need, timeline) | ✅ extraction with quotes as evidence | | |
+| Decide Qualified / Not / Needs follow-up | suggests, with reasons | ✅ **company's rules** applied in code | |
+| **Send the lead to the CRM or contact the prospect** | | | ✅ **SDR approves, edits or rejects**, the one irreversible step |
+| Change the knowledge base or guardrails | drafts (e.g. company profile) | | ✅ **admin approves** |
+
+**Human-in-the-loop without the rubber stamp.** If a human has to approve every chat reply, approval becomes a rubber stamp and the experience dies. So there are only **two approval points** (lead hand-off, knowledge/guardrail changes), plus a **weekly human review of 10% of conversations (or 50, whichever is smaller)**.
+
+**Already built (2026-10-02): Source and How I answered.** Under every reply the prospect can open **📄 Source** (the exact passage, document and page) and **🧭 How I answered** (understood as → searched for → found → safety check → result). The trace is built from the workflow's real steps, not the model explaining itself, and is stored per message (`messages.answer_trace`) so reviewers see the same evidence.
+
+**The lead-review screen** (next build) follows what the legal team asked for in ContractIQ:
+- an **edit button** on every extracted field (the corrections become eval ground truth and training data)
+- a **citation** for every field (the prospect's own words)
+- a **reasoning** line for the qualification call
+- a **flag** on low-confidence or high-value leads
+
+**Learning loop.** Maya does the work. The knowledge base and guardrails hold the rules. A weekly job turns SDR edits and unanswered questions into proposed fixes (a new KB entry, a guardrail exception). The admin approves or rejects each one, and only approved changes go live.
+
+**Trust zone and autonomy by phase.** LeadPilot runs in **Zone 2, Supervised**: external access with full logging, and a human approves every write to the outside world.
+
+| Phase | What the agent does alone | What still needs a human |
+|---|---|---|
+| Measurement / Beta (now) | Answers, declines, hands off | Every lead before the CRM; all KB/guardrail changes; weekly sampled review |
+| Launch | + auto-routes leads it scores *Not qualified* (weekly audit) | Every *Qualified* lead before the CRM or outreach |
+| After launch | + sends *Qualified* leads to the CRM above a confidence threshold, once precision ≥ 90% for 4 consecutive weeks | Low-confidence and high-value leads; any outbound email |
+
+## 7. What we learned from evaluation
+
+First live runs (2026-09-30), 27-case golden set, scored on Helpful / Honest / Harmless: a dimension fails if any case in it fails. Full results: [evals/README.md](../evals/README.md#results).
+
+| | Baseline | After fixes (2 runs) |
+|---|---|---|
+| Helpful: correct, cited answers | 13/14 | 14/14 · 14/14 |
+| Harmless: refuses blocked / off-topic / injection | 7/7 | 6/7 · 6/7 (one polite redirect instead of the standard decline; nothing forbidden said) |
+| Honest: falls back instead of guessing | 0/3 | 0/3 · 1/3 |
+| Overall | 23/27 | 23/27 · 24/27 |
+
+| Finding (root cause from the execution traces) | Product lesson | Change |
+|---|---|---|
+| A correct answer about the 15% annual-billing saving was replaced by the fallback, because the safety check saw the word "discount" | Guardrails need **intent, examples and exceptions**, not topic names. We predicted this edge case when writing the golden set | Published billing facts allowed; only special or negotiated discounts blocked |
+| The query rewriter turned "which CRMs can you *connect* to?" into a search for "ConnectWise" | Every LLM step can hallucinate, including the "helper" steps users never see | The rewriter may only use the user's own words |
+| The agent stated what the KB *doesn't* say as fact ("does not offer an on-premise version") | **Prompt rules can't enforce honesty**; it needs a check | Next: a groundedness check in the post-check |
+| The same question got different routes on different runs | One eval run isn't evidence | Every change is measured over ≥ 2 runs |
+| Run 3: a correct answer became the fallback because OpenAI returned a server error (HTTP 500) | Provider errors are a quality issue too. The error branch failed safe, and the new trace made the cause visible in seconds | Every AI step now retries once before falling back |
+
+**Open product decision.** When the KB is silent, should Maya always use the fallback (strict), or say "X isn't listed; here's what is supported" (more helpful)? The answer changes the Honest metric, so it's a product call, not an engineering one.
+
+## 8. Launch criteria
+
+Phased gates, as defined in the [evaluation PRD](evaluation-prd.md#7-launch-criteria-proposed). Don't widen the rollout until the current phase's bar is met.
+
+| Phase | Who sees it | Helpful | Honest | Harmless failures | Also required |
+|---|---|---|---|---|---|
+| **Measurement** (now) | Team + Acme Cloud demo | ≥ 60% | ≥ 75% | < 5% | Baseline published ✅; annual-discount guardrail fixed ✅ |
+| **Beta** | 1–2 design-partner companies | ≥ 70% | ≥ 85% | < 3% | Honest beats baseline by ≥ 10 points; golden set ~60 cases; **qualification MEP passed** (precision ≥ 80%, F1 ≥ 0.75) |
+| **Launch** | Self-serve customers | ≥ 80% | ≥ 90% | < 2% | Judge validated; hourly health check; cost per conversation within the pricing model |
+
+**Hard gates at every phase:** zero cross-company data in any reply, zero system-prompt leaks on the injection cases, and no lead reaches a CRM without the approvals set for that phase. Any one of these stops the phase.
+
+**Where we are:** Helpful ✅ and Harmless ✅ clear the Measurement bar. **Honest doesn't yet**: the groundedness check is the fix.
+
+**Pre-launch checklist** (the course's seven controls):
+
+| Control | Status |
+|---|---|
+| Least-privilege permissions | ✅ service role only server-side; RLS on every table |
+| Logging of every model and tool call | ✅ n8n executions |
+| Stopping conditions | ✅ max 6 agent iterations, max 3 searches, rate limit, 1 retry per AI step |
+| Cost model at 10× volume | ✅ section 10 |
+| An evaluation layer before irreversible actions | ⏭️ lead review screen |
+| Legal review of scope and approval gates | ⏭️ |
+| Incident plan with an owner | ⏭️ |
+
+## 9. Responsible AI
+
+| Area | Control |
+|---|---|
+| **Transparency** | The widget says it's an AI assistant and that "answers come from our knowledge base and can be imperfect"; every answer cites its source |
+| **Privacy and consent** | The agent may ask only for name and work email (admin-set PII rule), and only when it helps (e.g. booking a demo). Proposed: data retention of 12 months by default, configurable per customer, plus a delete-on-request path |
+| **Data use** | Customer knowledge and conversations are company-scoped and isolated in the database (RLS + filtered vector search). Data sent to the model API isn't used for model training by default under the vendor's API terms; confirm in the vendor DPA before launch |
+| **Fairness** | Qualification uses only the business criteria the customer defines (role, company size, need, timeline). It never uses name, gender, location or other personal attributes. Field-level evidence makes any bias auditable |
+| **Accuracy and harm** | Fallback over guessing; no discounts, legal or compliance promises (restricted claims); prompt-injection tests in every eval run; "not legal or financial advice" stance on regulated questions |
+| **Human oversight** | Section 6: approvals at the irreversible step, sampled review, and admin approval of all rule changes |
+| **Compliance** | The framework doesn't make us compliant. GDPR/CCPA obligations (lawful basis, access and deletion requests) go through the customer's existing process; SOC 2 is a launch-phase item |
+
+## 10. Business model and cost
+
+**Cost per conversation, measured** on the live agent (40 recent runs, gpt-4.1-mini at $0.40 / $1.60 per million input / output tokens):
+
+| Message type | Model calls | Tokens (in / out) | Cost |
+|---|---|---|---|
+| Knowledge question (router → rewriter → agent → search → post-check) | 5 | ~4,900 / ~110 | ~$0.002 |
+| Small talk / decline | 2 | ~1,200 / ~40 | ~$0.0005 |
+| **Typical conversation** (4 knowledge + 2 other messages) | ~24 | | **~$0.01** |
+
+At **10× volume** (a mid-size customer, ~10,000 conversations a month), inference is about **$100 a month**. Hosting (n8n, Supabase) is a fixed tier cost. **Plan for 15–20% forecast error**: cost varies by customer (long documents, chatty prospects). The structure keeps cost low: small model, routing that skips retrieval for small talk, and capped iterations.
+
+**Pricing hypothesis** (to test with pilot customers):
+- **Platform subscription**, tiered by conversations per month (includes admin panel, guardrails, knowledge base).
+- **Outcome-based fee per SDR-approved qualified lead.** This prices the outcome the customer values (the North Star) rather than tokens, and the approval step makes the outcome countable and auditable.
+- Inference stays a small fraction of price (AI services typically mark infrastructure up 2–10×), leaving margin for the human-review tooling and retraining.
+
+**What would make this a bad business:** if SDRs reject most "Qualified" leads (precision < 70%), the outcome fee collapses. That's why H3 is the MEP's core risk and is evaluated before launch.

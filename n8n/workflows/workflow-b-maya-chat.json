@@ -187,7 +187,10 @@
         -48
       ],
       "id": "e07f3433-a38e-4e21-9215-d3d6f8d778bf",
-      "name": "Intent Router"
+      "name": "Intent Router",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "parameters": {
@@ -267,7 +270,10 @@
         16
       ],
       "id": "4900c905-76f5-4358-a424-654a08eca9b1",
-      "name": "Direct reply"
+      "name": "Direct reply",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "parameters": {
@@ -310,7 +316,10 @@
         -240
       ],
       "id": "71bc192b-50de-42eb-9071-6684d5c9a332",
-      "name": "Query Rewriter"
+      "name": "Query Rewriter",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "parameters": {
@@ -358,7 +367,10 @@
       ],
       "id": "7ec426e7-a485-4314-88c6-96ad3965e9fe",
       "name": "Maya agent",
-      "onError": "continueErrorOutput"
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "parameters": {
@@ -484,7 +496,10 @@
         -400
       ],
       "id": "b1675fd6-cf43-4d3e-8f6c-ee6777db354a",
-      "name": "Post-check"
+      "name": "Post-check",
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 1000
     },
     {
       "parameters": {
