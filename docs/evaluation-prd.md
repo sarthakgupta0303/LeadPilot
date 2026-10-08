@@ -195,7 +195,7 @@ The reasoning trace is **built from what the workflow actually did** (router bra
 | Failure mode (clustered by pattern over the reply) | `turn_health.failure_mode` | Heuristic: flags for review, not a verdict |
 | End-to-end reply time | `turn_health.latency_ms` | Measured |
 | Model calls and searches | `model_calls`, `search_calls` | Measured from the workflow path |
-| Tokens and cost | `est_tokens`, `est_cost_usd` | **Estimated** (≈4 characters per token, gpt-4.1-mini list price), calibrated against n8n's measured usage; Foundry Monitor reports measured tokens and cost for the Foundry agent |
+| Tokens and cost | `est_tokens`, `est_cost_usd` | **Estimated** (≈4 characters per token, gpt-4.1-mini list price, per-call overheads calibrated against n8n's measured usage). Checked live on 2026-10-08: within 3% of measured on every route (knowledge answer ≈5,200 tokens / $0.0022; small talk ≈1,900 / $0.0008; decline ≈670 / $0.0003). Foundry Monitor reports measured tokens and cost for the Foundry agent |
 
 Failure modes tracked today (each one feeds the golden set):
 
@@ -232,6 +232,8 @@ Thresholds are set by the PM in advance (*"if you don't set the targets, enginee
 **Policy:** helpful and honest regressions give engineering room to fix. Harmless regressions (policy violations, disparaging competitors, a flood of canned refusals) escalate. Model-provider regressions are usually fixed without a shutdown.
 
 **First live reading (2026-10-08, last 14 days):** one alert. **Honesty flags at 13.9% of answers** (threshold 10%), the same weakness the golden set found. Everything else is inside its threshold.
+
+**Live finding (2026-10-08): the knowledge base contradicts itself.** Five new Acme PDFs (overview, pricing, FAQ, onboarding, security) were added on 2026-10-05 next to the original product guide. The new pricing sheet says the Growth plan is $249 a month with a 50% startup discount; the original guide says $99 per user a month. Asked about Growth pricing, Maya drafted the new figures, and the safety check replaced the answer with the fallback because of the discount. The guardrail did its job, but the root cause is **conflicting sources**. Product decision needed: which document is the source of truth, and should the golden set's expected answers (kb-02, kb-03, kb-06) be updated to match? Until then, kb-03 will fail for a data reason, not a model reason.
 
 ### 9.5 From traces to improvements
 
