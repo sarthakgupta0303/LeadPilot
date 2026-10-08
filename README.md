@@ -247,7 +247,7 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 | Workflow A: knowledge ingestion (PDF/DOCX + website crawl → pgvector) | ✅ live: Acme Cloud guide → 9 labelled chunks |
 | Workflow B: agentic RAG agent with three-layer guardrails | ✅ live: cited answers, declines, saved turns ([traces](docs/workflows/workflow-b-agentic-rag.md#real-traces-from-the-live-agent)) |
 | Website widget wired to the agent and the admin settings | ✅ |
-| Admin panel **Preview** tab (demo site + live widget in one file) | ✅ |
+| Admin panel **Preview** tab (demo site + live widget in one file) — also reachable from the sign-in screen without logging in | ✅ |
 | Chat export to Excel (question · response · source · reasoning) | ✅ download button in the chat header; Source and Reasoning come from the workflow's own `source_details` / `reasoning` and stay out of the chat (`CONFIG.showAnswerTrace` in `widget.js` turns the inline view back on) |
 | Evaluation suite (27 cases + runner) | ✅ built · first live runs 2026-09-30: 24/27, Honest still failing → [results](evals/README.md#results) |
 | **Next:** lead qualification, conversation insights, leads view (the PRD's differentiator) | ⏭️ |

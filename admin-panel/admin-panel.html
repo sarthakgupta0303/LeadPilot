@@ -326,6 +326,12 @@ body[data-tab="preview"] .panel-footer{ display:none; }
 .gate-card p{ margin:0 0 18px; font-size:13px; color:var(--muted); }
 .gate-status{ font-size:14px; color:var(--ink-2); display:flex; align-items:center; gap:10px; }
 .gate-status .spin{ flex:none; width:14px; height:14px; border-radius:50%; border:2px solid var(--brand); border-top-color:transparent; animation:spin .7s linear infinite; }
+
+.gate-or{ display:flex; align-items:center; gap:10px; margin:16px 0 12px; font-size:11px; color:var(--muted-2); text-transform:uppercase; letter-spacing:.08em; }
+.gate-or::before,.gate-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+body.preview-only .nav-item:not([data-tab="preview"]),
+body.preview-only .nav-divider,
+body.preview-only #accountEmail{ display:none; }
 .gate-error{ background:var(--danger-bg); color:#a12a2a; font-size:12.5px; font-weight:600; padding:9px 12px; border-radius:9px; margin-bottom:14px; }
 .account-row{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; font-size:12px; color:var(--muted); }
 .account-row span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -670,6 +676,9 @@ body[data-tab="preview"] .panel-footer{ display:none; }
       <button class="btn btn-ghost btn-sm" id="gateSignOutBtn" type="button">Sign out</button>
       <button class="btn btn-primary btn-sm" id="gateRetryBtn" type="button">Retry</button>
     </div>
+
+    <div class="gate-or"><span>or</span></div>
+    <button class="btn btn-ghost" id="previewNoSignin" type="button" style="width:100%">▶ Try the live preview (no sign-in)</button>
   </div>
 </div>
 
@@ -1508,6 +1517,18 @@ body[data-tab="preview"] .panel-footer{ display:none; }
   $("gateSignOutBtn").addEventListener("click", signOut);
   $("gateRetryBtn").addEventListener("click", loadAll);
 
+
+  // Preview without signing in: shows only the Preview tab (demo site + chat widget).
+  $("previewNoSignin").addEventListener("click", function () {
+    gateResolved = true;
+    document.body.classList.add("preview-only");
+    $("gate").hidden = true;
+    var so = $("signOutBtn");
+    so.textContent = "Sign in";
+    so.onclick = function () { location.reload(); };
+    so.removeEventListener("click", signOut);
+    switchTab("preview");
+  });
   /* ---------------- Init ---------------- */
   refreshForm();
   startKbAutoRefresh(state);
