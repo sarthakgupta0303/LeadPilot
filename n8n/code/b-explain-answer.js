@@ -136,5 +136,34 @@ const reasoning = {
   outcome,
 };
 
+// ---------- 4. Telemetry (observability) ----------
+// Reply time is measured; tokens and cost are ESTIMATES (about 4 characters per token, from the text
+// each model call actually saw), calibrated against n8n's measured usage on 2026-10-01
+// (knowledge answer: about 4,900 input / 110 output tokens across 5 calls).
+const start = (from('Validate input') || {}).received_at;
+const rules = from('Build rules') || {};
+const sys = String(rules.system_prompt || '').length;
+const chat = String(rules.chat_input || '').length;
+const obsChars = (agentSteps || []).reduce((n, st) => n + JSON.stringify(st.observation || '').length, 0);
+const searches = (agentSteps || []).length;
+let calls = 1, inChars = 900 + chat; // Intent Router (classifier prompt + message)
+if (flag === 'direct_reply') { calls += 2; inChars += sys + chat + 700 + reply.length; } // direct reply + post-check
+else if (ranAgent || flag === 'fallback_used' || flag === 'postcheck_uncertain' || flag === 'agent_error') {
+  calls += 1; inChars += 300 + chat;                                    // Query Rewriter
+  const agentCalls = Math.max(1, searches + 1);                         // tool-call turns + final answer
+  calls += agentCalls; inChars += agentCalls * (sys + chat) + obsChars; // Maya agent (re-reads results)
+  if (flag !== 'agent_error') { calls += 1; inChars += 700 + reply.length; } // Post-check
+}
+const outChars = reply.length + 40 * calls;
+const inTok = Math.round(inChars / 4), outTok = Math.round(outChars / 4);
+const telemetry = {
+  latency_ms: start ? Date.now() - start : null,
+  model_calls: calls,
+  search_calls: searches,
+  est_tokens: inTok + outTok,
+  est_cost_usd: Number(((inTok * 0.40 + outTok * 1.60) / 1e6).toFixed(6)), // gpt-4.1-mini list price
+  model: 'gpt-4.1-mini',
+};
+
 const { trace_steps, ...rest } = item; // don't send the raw steps to the widget or the database
-return [{ json: { ...rest, source_details, reasoning } }];
+return [{ json: { ...rest, source_details, reasoning, telemetry } }];
