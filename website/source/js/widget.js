@@ -12,10 +12,12 @@
       "Hi, I'm Maya 👋 Ask me anything about Acme Cloud — features, pricing, security or booking a demo.",
     // LeadPilot backend: n8n Workflow B (agentic RAG) + the public agent profile in Supabase.
     companyId: "3fbdd46d-e940-4bc9-93cf-7013f7ff216d",
-    chatEndpoint: "https://sarthak03.app.n8n.cloud/webhook/maya-chat",
+    chatEndpoint: "https://ankita301.app.n8n.cloud/webhook/maya-chat",
     supabaseUrl: "https://fgzfeylyhtnsjxxjytdr.supabase.co",
     supabaseKey: "sb_publishable_V9ae9T9b1D0KrbxszfmOTw_XVxfsMA7", // public key; RLS only exposes public_agent_profile
     replyTimeoutMs: 45000,
+    // false: sources and reasoning are kept out of the chat window and only appear in the Excel export.
+    showAnswerTrace: false,
     errorReply: "Sorry — I couldn't reach the server just now. Please try again in a moment.",
     // Avatar: tries each source in order and uses the first that loads.
     // bear.gif is the animated mascot; avatar.svg is the offline fallback.
@@ -45,7 +47,7 @@
     open: false,
     avatarUrl: "",
     greeted: false,
-    log: [], // one entry per question: { question, response, sources, reasoning }
+    log: [], // one entry per question: { question, response, source, reasoning }
   };
 
   /* ---------------- Avatar loading ---------------- */
@@ -108,7 +110,7 @@
     return new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   }
 
-  function addMessage(role, text) {
+  function addMessage(role, text, trace) {
     const row = document.createElement("div");
     row.className = "lgw-msg" + (role === "user" ? " is-user" : "");
 
@@ -128,12 +130,87 @@
     meta.className = "lgw-msg-time";
     meta.textContent = timeNow();
     wrap.appendChild(body);
+    if (role === "bot" && trace) {
+      const t = buildTrace(trace);
+      if (t) wrap.appendChild(t);
+    }
     wrap.appendChild(meta);
     row.appendChild(wrap);
 
     messagesEl.appendChild(row);
     scrollMessages();
     return row;
+  }
+
+  /* ---------------- "Source" and "How I answered" under each reply ----------------
+     Both come from what the workflow actually did (n8n "Explain answer" step), not from the model
+     explaining itself. Collapsed by default so the chat stays clean. All text is set with
+     textContent, never innerHTML. */
+  function el(tag, cls, text) {
+    const e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function buildTrace(trace) {
+    const sources = Array.isArray(trace.source_details) ? trace.source_details : [];
+    const r = trace.reasoning;
+    if (!sources.length && !r) return null;
+
+    const box = el("div", "lgw-trace");
+    const bar = el("div", "lgw-trace-bar");
+    const panels = [];
+
+    function addToggle(label, panel) {
+      const btn = el("button", "lgw-trace-btn", label);
+      btn.type = "button";
+      btn.setAttribute("aria-expanded", "false");
+      panel.hidden = true;
+      btn.addEventListener("click", () => {
+        const open = panel.hidden;
+        panels.forEach((p) => { p.panel.hidden = true; p.btn.setAttribute("aria-expanded", "false"); });
+        panel.hidden = !open;
+        btn.setAttribute("aria-expanded", String(open));
+        scrollMessages();
+      });
+      bar.appendChild(btn);
+      panels.push({ btn, panel });
+    }
+
+    if (sources.length) {
+      const panel = el("div", "lgw-trace-panel");
+      sources.forEach((s) => {
+        const item = el("div", "lgw-trace-src");
+        const name = (s.source || "Knowledge base").replace(/\.(pdf|docx?)$/i, "").replace(/[-_]+/g, " ");
+        item.appendChild(el("div", "lgw-trace-src-name", name + (s.page ? " · page " + s.page : "")));
+        if (s.passage) item.appendChild(el("blockquote", "lgw-trace-quote", s.passage));
+        if (s.url && /^https?:\/\//.test(s.url)) {
+          const a = el("a", "lgw-trace-link", "Open page");
+          a.href = s.url; a.target = "_blank"; a.rel = "noopener noreferrer";
+          item.appendChild(a);
+        }
+        panel.appendChild(item);
+      });
+      addToggle("📄 Source", panel);
+    }
+
+    if (r) {
+      const panel = el("div", "lgw-trace-panel");
+      const steps = el("ol", "lgw-trace-steps");
+      const add = (k, v) => { if (!v || (Array.isArray(v) && !v.length)) return; const li = el("li"); li.appendChild(el("span", "lgw-trace-k", k)); li.appendChild(el("span", "lgw-trace-v", Array.isArray(v) ? v.join(" · ") : v)); steps.appendChild(li); };
+      add("Understood as", r.understood_as);
+      add("Searched for", (r.searched_for || []).map((q) => "“" + q + "”"));
+      add("Found", (r.found || []).map((f) => f.replace(/\.(pdf|docx?)(?=:|$)/i, "").replace(/[-_]+/g, " ")));
+      add("Safety check", r.safety_check);
+      add("Result", r.outcome);
+      panel.appendChild(steps);
+      addToggle("🧭 How I answered", panel);
+    }
+
+    box.appendChild(bar);
+    panels.forEach((p) => box.appendChild(p.panel));
+    return box;
   }
 
   function showTyping() {
@@ -172,8 +249,10 @@
 
     getAgentReply(clean).then((r) => {
       typing.remove();
-      addMessage("bot", r.text); // the chat shows only the reply, never sources or reasoning
-      state.log.push({ question: clean, response: r.text, sources: r.sources, reasoning: r.reasoning });
+      // The chat shows only the reply. Source and reasoning go to the Excel export
+      // (set CONFIG.showAnswerTrace = true to also show them under each answer).
+      addMessage("bot", r.text, CONFIG.showAnswerTrace ? r.trace : null);
+      state.log.push({ question: clean, response: r.text, source: r.source, reasoning: r.reasoning });
       updateDownloadState();
       setBusy(false);
     });
@@ -181,23 +260,45 @@
 
   const REASON_FAILED = "No answer was generated: the request to the assistant failed or timed out, so the apology message was shown.";
 
-  function buildReasoning(data, sources) {
-    // If the workflow ever returns its own explanation, prefer it.
-    const own = data.reasoning || data.explanation;
-    if (typeof own === "string" && own.trim()) return own.trim();
-    let text;
-    if (sources.length) {
-      text = "The agent searched the company knowledge base and grounded this answer in: " + sources.join(", ") +
-        ". Answers are limited to approved company content and the guardrails set in the admin panel.";
-    } else {
-      text = "The agent did not retrieve any knowledge-base source for this message, so the reply is conversational or a guardrail response " +
-        "(for example a greeting, a decline of an out-of-scope topic, or an \"I don't have that information\" answer) rather than a cited answer.";
+  // Source cell for the Excel export: every passage the agent used, with its file, page and link.
+  function formatSource(data) {
+    const details = Array.isArray(data.source_details) ? data.source_details : [];
+    if (details.length) {
+      return details.map(function (d) {
+        const head = (d.source || "Knowledge base") + (d.page ? " (page " + d.page + ")" : "");
+        const lines = [head];
+        if (d.url && /^https?:\/\//.test(d.url)) lines.push(d.url);
+        if (d.passage) lines.push("\u201C" + d.passage + "\u201D");
+        return lines.join("\n");
+      }).join("\n\n");
     }
-    if (data.flag) text += " Guardrail flag: " + (typeof data.flag === "string" ? data.flag : JSON.stringify(data.flag)) + ".";
-    return text;
+    const names = Array.isArray(data.sources) ? data.sources.filter(Boolean).map(String) : [];
+    return names.join("\n");
   }
 
-  // Sends the message to n8n Workflow B. Always resolves with { text, sources, reasoning } (never rejects).
+  // Reasoning cell: the workflow's own "Explain answer" trace (what it understood, searched, found, checked).
+  function formatReasoning(data) {
+    const r = data.reasoning;
+    if (typeof r === "string" && r.trim()) return r.trim();
+    if (r && typeof r === "object") {
+      const join = function (v) { return Array.isArray(v) ? v.join(" \u00B7 ") : v; };
+      const rows = [
+        ["Understood as", r.understood_as],
+        ["Searched for", (r.searched_for || []).map(function (q) { return "\u201C" + q + "\u201D"; })],
+        ["Found", r.found],
+        ["Safety check", r.safety_check],
+        ["Result", r.outcome],
+      ].filter(function (x) { return x[1] && !(Array.isArray(x[1]) && !x[1].length); });
+      if (rows.length) return rows.map(function (x) { return x[0] + ": " + join(x[1]); }).join("\n");
+    }
+    // Older workflow versions return only the reply and a source list: describe what that implies.
+    const names = Array.isArray(data.sources) ? data.sources.filter(Boolean) : [];
+    return names.length
+      ? "The agent searched the company knowledge base and grounded this answer in: " + names.join(", ") + "."
+      : "The agent did not retrieve any knowledge-base source for this message, so the reply is conversational or a guardrail response rather than a cited answer.";
+  }
+
+  // Sends the message to n8n Workflow B. Always resolves with { text, trace, source, reasoning } (never rejects).
   async function getAgentReply(userText) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), CONFIG.replyTimeoutMs);
@@ -215,13 +316,17 @@
       });
       const data = await res.json().catch(() => ({}));
       if (data.reply) {
-        const sources = Array.isArray(data.sources) ? data.sources.filter(Boolean).map(String) : [];
-        return { text: data.reply, sources: sources, reasoning: buildReasoning(data, sources) };
+        return {
+          text: data.reply,
+          trace: { source_details: data.source_details, reasoning: data.reasoning },
+          source: formatSource(data),
+          reasoning: formatReasoning(data),
+        };
       }
-      if (data.error) return { text: "Sorry — " + data.error + ".", sources: [], reasoning: "The assistant returned an error instead of an answer: " + data.error };
-      return { text: CONFIG.errorReply, sources: [], reasoning: REASON_FAILED };
+      if (data.error) return { text: "Sorry \u2014 " + data.error + ".", source: "", reasoning: "The assistant returned an error instead of an answer: " + data.error };
+      return { text: CONFIG.errorReply, source: "", reasoning: REASON_FAILED };
     } catch (_) {
-      return { text: CONFIG.errorReply, sources: [], reasoning: REASON_FAILED };
+      return { text: CONFIG.errorReply, source: "", reasoning: REASON_FAILED };
     } finally {
       clearTimeout(timer);
     }
@@ -322,7 +427,7 @@
     if (!state.log.length) return;
     const rows = [["Question", "Response", "Source", "Reasoning"]].concat(
       state.log.map(function (e) {
-        return [e.question, e.response, e.sources.length ? e.sources.join("\n") : NO_SOURCE, e.reasoning];
+        return [e.question, e.response, e.source || NO_SOURCE, e.reasoning];
       })
     );
     const bytes = buildXlsx(rows, "Chat log");

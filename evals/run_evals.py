@@ -22,7 +22,7 @@ import urllib.request
 import uuid
 
 HERE = pathlib.Path(__file__).parent
-DEFAULT_ENDPOINT = "https://sarthak03.app.n8n.cloud/webhook/maya-chat"
+DEFAULT_ENDPOINT = "https://ankita301.app.n8n.cloud/webhook/maya-chat"
 DEFAULT_COMPANY_ID = "3fbdd46d-e940-4bc9-93cf-7013f7ff216d"
 # Must match the admin panel's "Fallback message" and the workflow's "Decline" text.
 DEFAULT_FALLBACK = "I don't have that information yet, but I can connect you with our team who can help."

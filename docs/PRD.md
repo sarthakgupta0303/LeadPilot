@@ -100,7 +100,7 @@ percentage of qualified prospects for whom LeadPilot AI successfully recommends 
 
 conversation completion rate, AI response accuracy, knowledge retrieval accuracy, average qualification time, lead handoff rate, meeting/demo booking rate, returning prospect recognition rate, website-to-qualified-lead conversion, campaign-to-qualified-lead conversion, KB ingestion success rate, guardrail violation rate.
 
-Detailed evaluation methodology is covered in a separate evaluation PRD.
+Detailed evaluation methodology is covered in the separate [evaluation PRD](evaluation-prd.md).
 
 ## 2. Solution Definition
 
@@ -430,4 +430,4 @@ Admin Panel config → KB upload → n8n ingestion → Supabase (Storage + pgvec
 | Launch | CRM integration, meeting/demo booking, sales notifications, qualification analytics, additional KB sources | 3–4 weeks |
 | Iteration | Advanced intent scoring, personalized conversations, predictive qualification, automated follow-up | Ongoing |
 
-Evaluation plan and metrics instrumentation will follow in a separate PRD.
+Evaluation plan and metrics instrumentation: [evaluation PRD](evaluation-prd.md).

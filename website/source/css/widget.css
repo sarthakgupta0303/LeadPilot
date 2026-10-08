@@ -149,3 +149,27 @@
 @media (prefers-reduced-motion: reduce) {
   .lgw-launcher { animation: none; }
 }
+
+/* ---------- "Source" and "How I answered" under each reply ---------- */
+.lgw-trace { margin-top: 6px; }
+.lgw-trace-bar { display: flex; flex-wrap: wrap; gap: 6px; }
+.lgw-trace-btn {
+  font: 500 11.5px/1 inherit; font-family: inherit; color: var(--lgw-ink-2);
+  background: #fff; border: 1px solid var(--lgw-line); border-radius: 999px;
+  padding: 5px 10px; cursor: pointer;
+}
+.lgw-trace-btn:hover { color: var(--lgw-brand); border-color: var(--lgw-brand); }
+.lgw-trace-btn[aria-expanded="true"] { color: var(--lgw-brand); border-color: var(--lgw-brand); background: rgba(31,79,216,.06); }
+.lgw-trace-btn:focus-visible { outline: 2px solid var(--lgw-brand); outline-offset: 2px; }
+.lgw-trace-panel {
+  margin-top: 6px; padding: 10px 12px; background: #fff; border: 1px solid var(--lgw-line);
+  border-radius: 12px; font-size: 12.5px; line-height: 1.45; color: var(--lgw-ink);
+}
+.lgw-trace-src + .lgw-trace-src { margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--lgw-line); }
+.lgw-trace-src-name { font-weight: 600; font-size: 11.5px; color: var(--lgw-ink-2); text-transform: capitalize; }
+.lgw-trace-quote { margin: 6px 0 0; padding: 6px 10px; border-left: 3px solid var(--lgw-brand); background: var(--lgw-bg-soft); border-radius: 0 8px 8px 0; font-style: italic; }
+.lgw-trace-link { display: inline-block; margin-top: 6px; font-size: 11.5px; color: var(--lgw-brand); }
+.lgw-trace-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.lgw-trace-steps li { display: grid; grid-template-columns: 96px 1fr; gap: 8px; }
+.lgw-trace-k { color: var(--lgw-ink-2); font-size: 11.5px; }
+.lgw-trace-v { overflow-wrap: anywhere; }
