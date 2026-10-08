@@ -80,6 +80,9 @@
   color: var(--lgw-ink-2); display: grid; place-items: center;
 }
 .lgw-icon-btn:hover { background: var(--lgw-bg-soft); color: var(--lgw-ink); }
+.lgw-head-actions { display: flex; align-items: center; gap: 2px; }
+.lgw-icon-btn[aria-disabled="true"] { opacity: .38; cursor: not-allowed; }
+.lgw-icon-btn[aria-disabled="true"]:hover { background: none; color: var(--lgw-ink-2); }
 
 .lgw-view { display: none; flex: 1; min-height: 0; flex-direction: column; }
 .lgw-view.is-active { display: flex; }

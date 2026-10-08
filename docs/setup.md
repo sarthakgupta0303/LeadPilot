@@ -80,10 +80,10 @@ Run [`supabase/06_ingest_trigger.sql`](../supabase/06_ingest_trigger.sql) after 
 ## 6. Point the front-ends at your backend
 
 - `admin-panel/admin-panel.html` → `SUPABASE_URL`, `SUPABASE_KEY` (publishable).
-- `website/source/js/widget.js` → `companyId`, `chatEndpoint`, `supabaseUrl`, `supabaseKey`. Then run `python3 website/build.py` to regenerate the single-file site.
+- `website/source/js/widget.js` → `companyId`, `chatEndpoint`, `supabaseUrl`, `supabaseKey`. Then run `python3 website/build.py` to rebuild the demo site and re-embed it in the admin panel's **Preview** tab.
 
 ## 7. Load knowledge and test
 
 1. Open the admin panel, sign in, and upload [`knowledge-base/acme-cloud-product-guide.pdf`](../knowledge-base/acme-cloud-product-guide.pdf). Wait for **Ready**.
-2. Open `website/acme-cloud.html` and ask Maya *"How much is the Starter plan?"*
+2. Open the admin panel's **Preview** tab and ask Maya *"How much is the Starter plan?"*
 3. Run the evals: `python3 evals/run_evals.py` (see [`evals/`](../evals/)).

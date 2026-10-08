@@ -35,7 +35,7 @@ B2B companies pay to bring prospects to their website, then leave them alone wit
 
 ## 2. Solution and scope
 
-**MVP, what's built:** an admin panel to configure the agent (persona, company context, guardrails, knowledge base) · automated knowledge ingestion from documents and websites · an agentic RAG chat agent on the customer's website · conversation storage with the sources each answer used · a 27-case evaluation suite.
+**MVP, what's built:** an admin panel to configure the agent (persona, company context, guardrails, knowledge base) · automated knowledge ingestion from documents and websites · an agentic RAG chat agent on the customer's website · conversation storage with the sources each answer used · an in-panel **Preview** tab that runs the real chat widget on the Acme Cloud demo site, so the whole product can be demoed from one file · one-click **Excel export** of a chat (question, response, source, reasoning) · a 27-case evaluation suite.
 
 **Deliberately cut or deferred** (see the [decision log](docs/decision-log.md)):
 - ✂️ The **video/voice avatar**. It was out of MVP scope and didn't move the North Star.
@@ -67,7 +67,7 @@ flowchart LR
 
 Guardrail changes apply on the **next message**; new knowledge after about **30 seconds** (once *Ready*). → [Full walkthrough](docs/workflows/admin-panel.md#data-flow-in-one-picture-from-the-admin-panel-to-the-agent-on-the-website)
 
-**The admin panel is the control room.** Admins sign in, configure the agent's persona and guardrails, and manage its knowledge. The panel only talks to Supabase (never to n8n or the AI), and every setting maps to a specific effect on the agent. → [Admin panel: screens, connections and flows](docs/workflows/admin-panel.md)
+**The admin panel is the control room.** Admins sign in, configure the agent's persona and guardrails, and manage its knowledge. The panel only talks to Supabase (never to n8n or the AI), and every setting maps to a specific effect on the agent. A fourth **Preview** tab embeds the demo website and the live Maya widget, so you can configure, then test and present, without leaving the panel. → [Admin panel: screens, connections and flows](docs/workflows/admin-panel.md)
 
 **Supabase is the single source of truth.** When an admin saves a guardrail, the agent applies it to the **very next** message, with no deploy and no sync job. Security is real rather than mocked: admin sign-in, Row Level Security on every table, visitors limited to a 6-field public view, and company-scoped vector search enforced *inside the database*. → [Architecture](docs/architecture.md)
 
@@ -191,6 +191,8 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 | Workflow A: knowledge ingestion (PDF/DOCX + website crawl → pgvector) | ✅ live: Acme Cloud guide → 9 labelled chunks |
 | Workflow B: agentic RAG agent with three-layer guardrails | ✅ live: cited answers, declines, saved turns ([traces](docs/workflows/workflow-b-agentic-rag.md#real-traces-from-the-live-agent)) |
 | Website widget wired to the agent and the admin settings | ✅ |
+| Admin panel **Preview** tab (demo site + live widget in one file) | ✅ |
+| Chat export to Excel (question · response · source · reasoning) | ✅ sources come from the agent; reasoning is derived from them until the workflow returns its own |
 | Evaluation suite (27 cases + runner) | ✅ built · results pending |
 | **Next:** lead qualification, conversation insights, leads view (the PRD's differentiator) | ⏭️ |
 | Later: CRM handoff, demo booking, analytics, signed embed snippet | 🗓️ |
@@ -211,7 +213,7 @@ The full list, with options considered and trade-offs: **[decision log](docs/dec
 ```
 docs/            PRD, workflow deep dives (diagrams), build journal, architecture, decision log, setup guide
 admin-panel/     LeadPilot admin panel (single HTML file, Supabase JS)
-website/         Acme Cloud demo site + Maya widget (source/ + single-file build)
+website/         Acme Cloud demo site + Maya widget (editable source/; `build.py` embeds it in the admin panel's Preview tab)
 supabase/        All SQL: tables, RLS, storage, pgvector + RAG functions, ingestion trigger
 n8n/             Workflow docs + Code-node scripts (workflow JSON exports go here)
 knowledge-base/  Demo KB: Acme Cloud product guide (PDF + HTML source)

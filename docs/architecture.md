@@ -6,7 +6,7 @@ LeadPilot has four parts. **Supabase is the single source of truth**: the admin 
 flowchart TB
   subgraph Browser
     AP[LeadPilot Admin Panel<br/>admin-panel.html]
-    WS[Customer website + Maya widget<br/>acme-cloud.html]
+    WS[Customer website + Maya widget<br/>(admin panel · Preview tab)]
   end
   subgraph Supabase
     AUTH[Auth<br/>admin login]

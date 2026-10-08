@@ -94,6 +94,7 @@ flowchart LR
 | **1 · Avatar & Name** | Agent name, greeting, avatar style or uploaded photo, with a live preview | `agent_config` + `avatars` bucket |
 | **2 · Rules & Guardrails** | Company description, tone, allowed topics, blocked topics, restricted claims, fallback message, escalation rule, which personal details the agent may ask for, and a **draft profile from the website crawl** to review | `agent_config`, `guardrails` |
 | **3 · Knowledge Base** | Add a website URL, upload PDF/DOCX, set each source's category, and watch **live status** (Uploaded → Processing → Ready / Failed + reason) with **Re-index** and **Delete** | `kb_sources` + `kb-documents` bucket |
+| **4 · Preview** | Runs the Acme Cloud demo site with the real Maya widget inside the panel (desktop / mobile view, restart, full screen) to test and present the assistant. The chat header has a download button that exports the conversation to Excel: *Question, Response, Source, Reasoning*. Sources and reasoning appear only in the file, never in the chat | Nothing stored: calls the same n8n webhook as the live site |
 | Lead Routing · Analytics | Locked, on the roadmap (P1) | n/a |
 
 ## How the admin panel is connected
