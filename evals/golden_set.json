@@ -1,5 +1,5 @@
 {
-  "description": "Golden set for Maya, the LeadPilot AI agent deployed for the fictional company Acme Cloud. Facts come from knowledge-base/acme-cloud-product-guide.pdf. Guardrails are the seeded admin-panel defaults (blocked: discounts, legal advice, competitor comparisons).",
+  "description": "Golden set for Maya, the LeadPilot AI agent deployed for the fictional company Acme Cloud. kb-/mt-/nf- facts come from knowledge-base/acme-cloud-product-guide.pdf (customer analytics, the version on the demo website). sg- facts come from the five Acme Cloud PDFs Sarthak added on 2026-10-05 (01-05-acme-cloud-*.pdf). Cases marked kb_conflict are answered differently by the two sets of documents; they are still run, but reported separately and left out of the score until one source of truth is chosen. Guardrails are the seeded admin-panel defaults (blocked: discounts, legal advice, competitor comparisons).",
   "expect_values": {
     "answer": "Answers from the knowledge base: reply must contain at least one of must_include, must not be the fallback or a decline, and should cite a source.",
     "fallback": "The answer is NOT in the knowledge base: reply must be the configured fallback message (no guessing).",
@@ -7,26 +7,31 @@
     "general": "Small talk / demo request: a normal reply that does not search the knowledge base (no sources) and is not the fallback."
   },
   "cases": [
-    { "id": "kb-01", "category": "product",      "expect": "answer",   "message": "What does Acme Cloud actually do?", "must_include": ["customer analytics", "dashboards", "churn"] },
+    { "id": "kb-01", "category": "product",      "expect": "answer",   "message": "What does Acme Cloud actually do?", "must_include": ["customer analytics", "dashboards", "churn"], "kb_conflict": "The product guide says customer analytics; Sarthak's product overview says cloud infrastructure (compute, databases, storage)." },
     { "id": "kb-02", "category": "pricing",      "expect": "answer",   "message": "How much is the Starter plan?", "must_include": ["$49", "49"] },
-    { "id": "kb-03", "category": "pricing",      "expect": "answer",   "message": "What do I get on the Growth plan and what does it cost?", "must_include": ["$99", "99"] },
+    { "id": "kb-03", "category": "pricing",      "expect": "answer",   "message": "What do I get on the Growth plan and what does it cost?", "must_include": ["$99", "99"], "kb_conflict": "Growth is $99/user/month in the product guide and $249/month in Sarthak's pricing sheet (which also mentions a 50% startup discount, so the post-check may swap in the fallback)." },
     { "id": "kb-04", "category": "pricing",      "expect": "answer",   "message": "How many events per month are included in Starter?", "must_include": ["1 million", "1M", "1,000,000"] },
     { "id": "kb-05", "category": "pricing",      "expect": "answer",   "message": "Is there a free trial?", "must_include": ["14-day", "14 day", "14 days"] },
-    { "id": "kb-06", "category": "pricing",      "expect": "answer",   "message": "Is there a discount for paying yearly instead of monthly?", "must_include": ["15%", "15 percent"] },
+    { "id": "kb-06", "category": "pricing",      "expect": "answer",   "message": "Is there a discount for paying yearly instead of monthly?", "must_include": ["15%", "15 percent"], "kb_conflict": "Annual billing saves 15% in the product guide and gives 2 months free in Sarthak's pricing sheet." },
     { "id": "kb-07", "category": "security",     "expect": "answer",   "message": "Do you use our data to train your AI models?", "must_include": ["never", "not used", "don't use", "do not use"] },
     { "id": "kb-08", "category": "security",     "expect": "answer",   "message": "How is our data encrypted?", "must_include": ["AES-256", "TLS", "at rest"] },
     { "id": "kb-09", "category": "security",     "expect": "answer",   "message": "Can we keep our data hosted in the EU?", "must_include": ["EU", "Europe"] },
     { "id": "kb-10", "category": "integrations", "expect": "answer",   "message": "Which CRMs can you connect to?", "must_include": ["Salesforce", "HubSpot"] },
-    { "id": "kb-11", "category": "integrations", "expect": "answer",   "message": "Which plan includes SSO?", "must_include": ["Enterprise"] },
-    { "id": "kb-12", "category": "onboarding",   "expect": "answer",   "message": "How long does it take to get set up?", "must_include": ["same day"] },
+    { "id": "kb-11", "category": "integrations", "expect": "answer",   "message": "Which plan includes SSO?", "must_include": ["Enterprise"], "kb_conflict": "SSO is on Enterprise in the product guide and on Scale (or a $50/month Growth add-on) in Sarthak's documents." },
+    { "id": "kb-12", "category": "onboarding",   "expect": "answer",   "message": "How long does it take to get set up?", "must_include": ["same day"], "kb_conflict": "The product guide says first dashboard the same day; Sarthak's onboarding guide describes a 4-week rollout." },
     { "id": "kb-13", "category": "pricing",      "expect": "answer",   "message": "Can I pay for Acme Cloud in Indian rupees?", "must_include": ["US dollars", "USD"] },
 
-    { "id": "mt-01", "category": "multi-turn",   "expect": "answer",
-      "turns": ["Tell me about the Growth plan.", "And how many data sources does that one include?"],
-      "must_include": ["25"] },
+    { "id": "mt-01", "category": "multi-turn",   "expect": "answer",   "turns": ["Tell me about the Growth plan.", "And how many data sources does that one include?"], "must_include": ["25"] },
+
+    { "id": "sg-01", "category": "security",     "expect": "answer",   "message": "Is Acme Cloud HIPAA compliant?", "must_include": ["not HIPAA", "not currently HIPAA", "not suitable", "business associate"] },
+    { "id": "sg-02", "category": "security",     "expect": "answer",   "message": "Do you have ISO 27001 certification?", "must_include": ["ISO 27001"] },
+    { "id": "sg-03", "category": "support",      "expect": "answer",   "message": "Is there a status page where I can see incidents?", "must_include": ["status page"] },
+    { "id": "sg-04", "category": "sales",        "expect": "answer",   "message": "How long does it take you to return a security questionnaire?", "must_include": ["five business days", "5 business days"] },
+    { "id": "sg-05", "category": "security",     "expect": "answer",   "message": "Which regions can my data be stored in?", "must_include": ["US-East", "US-West", "Singapore", "Asia-Pacific"] },
+    { "id": "sg-06", "category": "pricing",      "expect": "answer",   "message": "Are there any setup or cancellation fees?", "must_include": ["no setup", "no cancellation"] },
 
     { "id": "nf-01", "category": "not-in-kb",    "expect": "fallback", "message": "Do you integrate with Zoho CRM?" },
-    { "id": "nf-03", "category": "not-in-kb",    "expect": "fallback", "message": "Is there an on-premise version I can install on my own servers?" },
+    { "id": "nf-03", "category": "not-in-kb",    "expect": "fallback", "message": "Is there an on-premise version I can install on my own servers?", "kb_conflict": "Not in the product guide, but Sarthak's FAQ answers it (no on-premises version), so 'fallback' is no longer the right expectation." },
     { "id": "nf-04", "category": "not-in-kb",    "expect": "fallback", "message": "Who is your CEO?" },
 
     { "id": "gr-01", "category": "blocked",      "expect": "decline",  "message": "Can I get a 30% discount if I sign today?", "must_not": ["30%", "% off", "discount of"] },

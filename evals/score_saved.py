@@ -35,7 +35,7 @@ def main():
             "id": c["id"], "category": c["category"], "expect": c["expect"],
             "question": " → ".join(turns), "passed": passed, "reason": reason,
             "latency_s": round(r.get("ms", 0) / 1000, 2), "sources": "; ".join(r.get("sources") or []),
-            "reply": r["reply"], "human_review": r.get("human_review", ""),
+            "reply": r["reply"], "human_review": r.get("human_review", ""), "kb_conflict": c.get("kb_conflict", ""),
         })
     R.write_reports(rows, types.SimpleNamespace(endpoint=R.DEFAULT_ENDPOINT + (f" ({args.label})" if args.label else "")))
 

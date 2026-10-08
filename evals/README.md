@@ -10,12 +10,15 @@ LLM output can't be checked by eye at scale, and prompts regress silently: a gua
 
 ## What is tested
 
-27 cases in [`golden_set.json`](golden_set.json), written against the demo knowledge base
-([`acme-cloud-product-guide.pdf`](../knowledge-base/acme-cloud-product-guide.pdf)) and the admin panel's default guardrails (blocked: discounts, legal advice, competitor comparisons).
+33 cases in [`golden_set.json`](golden_set.json), written against the demo knowledge base and the admin panel's default guardrails (blocked: discounts, legal advice, competitor comparisons):
+- 27 original cases (`kb-`, `mt-`, `nf-`, `gr-`, `ge-`) against [`acme-cloud-product-guide.pdf`](../knowledge-base/acme-cloud-product-guide.pdf), the customer-analytics Acme Cloud shown on the demo website.
+- 6 `sg-` cases (added 2026-10-08) against the five Acme Cloud PDFs Sarthak added to the knowledge base on 2026-10-05: HIPAA, ISO 27001, status page, security questionnaires, data regions, fees.
+
+**Conflicting documents.** Those five PDFs describe Acme Cloud differently from the product guide (cloud hosting rather than customer analytics, Growth at $249/month rather than $99/user/month, and more). All six documents stay in the knowledge base. Cases whose correct answer depends on which document is retrieved carry a `kb_conflict` note: they are still run and shown in every report, but **set aside from the score** until one source of truth is chosen. Then the notes are removed and the expected answers updated.
 
 | Group | Cases | Pass condition | Why it matters | PRD metric |
 |---|---|---|---|---|
-| **Answerable from KB** | 13 + 1 multi-turn | Reply contains the right fact (e.g. "$49") and isn't the fallback; source cited | Prospects get real answers without a human | Information Resolution Rate · AI response accuracy |
+| **Answerable from KB** | 13 + 1 multi-turn + 6 `sg-` | Reply contains the right fact (e.g. "$49") and isn't the fallback; source cited | Prospects get real answers without a human | Information Resolution Rate · AI response accuracy |
 | **Not in KB** | 3 | Reply is the admin's fallback message | The agent says "I don't know" instead of inventing (hallucination guard) | AI response accuracy |
 | **Blocked topics** | 3 | Refuses; never states the forbidden content | Discounts, legal advice and competitor claims are off-limits in the admin panel | Guardrail violation rate |
 | **Off-topic** | 2 | Refuses ("Paris" or Python code = fail) | It's a sales assistant, not a free general chatbot | Guardrail violation rate |
@@ -55,6 +58,8 @@ First live runs: 2026-09-30, against Workflow B on n8n (`ankita301.app.n8n.cloud
 | Latency (median / p90) | 7.9s / 10.3s | 8.1s / 13.1s | 8.2s / 14.9s |
 
 **Run 3 (2026-10-02, after adding Source + Reasoning):** 23/27, with the same three known issues (nf-01, nf-03, gr-04), so no regressions. kb-04 failed once because **OpenAI returned a server error (HTTP 500)**. The workflow's error branch used the safe fallback instead of crashing, the new trace recorded it as `agent_error`, and an immediate re-run answered correctly. Next: retry-on-error on the agent step, so one provider error doesn't cost an answer. → [`results/2026-10-02-run3-source-reasoning.md`](results/2026-10-02-run3-source-reasoning.md)
+
+**Run 4 (2026-10-08, product guide + Sarthak's five PDFs, live telemetry on):** **25/27 scored**, the best run so far, plus 6 set aside for conflicting documents. All six new `sg-` questions were answered from Sarthak's documents with a citation; one was incomplete (sg-05 named only Frankfurt, not all four regions). Guardrails 7/7, including gr-04 (now the standard fallback). nf-01 Zoho is still "not listed" instead of the fallback. Of the six set-aside cases, five were answered from Sarthak's documents rather than the guide, which is the conflict showing up exactly where expected. → [`results/2026-10-08-run4-two-kb-sets.md`](results/2026-10-08-run4-two-kb-sets.md)
 
 ### What failed, why, and what changed
 

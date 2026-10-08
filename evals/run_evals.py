@@ -144,7 +144,7 @@ def main():
             "id": c["id"], "category": c["category"], "expect": c["expect"],
             "question": " → ".join(turns), "passed": passed, "reason": reason,
             "latency_s": round(secs, 2), "sources": "; ".join(sources), "reply": reply,
-            "human_review": "",
+            "human_review": "", "kb_conflict": c.get("kb_conflict", ""),
         })
         print(f"{'PASS' if passed else 'FAIL'}  {c['id']:6} {secs:5.1f}s  {reason}")
 
@@ -163,6 +163,10 @@ def write_reports(rows, args):
     def rate(subset):
         return f"{sum(r['passed'] for r in subset)}/{len(subset)}" if subset else "–"
 
+    # Cases whose answer depends on which of two conflicting KB documents is retrieved are still run,
+    # but reported separately and left out of the score until one source of truth is chosen.
+    aside = [r for r in rows if r.get("kb_conflict")]
+    all_rows, rows = rows, [r for r in rows if not r.get("kb_conflict")]
     by = lambda e: [r for r in rows if r["expect"] == e]
     answers = by("answer")
     lat = sorted(r["latency_s"] for r in rows if not r["reason"].startswith("error"))
@@ -172,7 +176,7 @@ def write_reports(rows, args):
     lines = [
         f"# Eval run {stamp}",
         "",
-        f"Endpoint: `{args.endpoint}` · cases: {len(rows)}",
+        f"Endpoint: `{args.endpoint}` · cases: {len(rows)} scored" + (f" + {len(aside)} set aside" if aside else ""),
         "",
         "| Metric | Result | What it measures (PRD metric) |",
         "|---|---|---|",
@@ -189,6 +193,9 @@ def write_reports(rows, args):
     ]
     fails = [r for r in rows if not r["passed"]]
     lines += [f"- **{r['id']}** ({r['category']}): {r['reason']} — _{r['question']}_ → “{r['reply'][:160]}”" for r in fails] or ["None."]
+    if aside:
+        lines += ["", f"## Set aside: conflicting knowledge-base documents ({len(aside)}, not scored)", ""]
+        lines += [f"- **{r['id']}** {'pass' if r['passed'] else 'fail'} vs the product guide · {r['kb_conflict']} → “{r['reply'][:160]}”" for r in aside]
     (out / f"run-{stamp}.md").write_text("\n".join(lines) + "\n")
     print("\n" + "\n".join(lines[4:12]))
     print(f"\nWrote {out / f'run-{stamp}.csv'} and .md")
