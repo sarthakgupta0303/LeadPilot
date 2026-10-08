@@ -11,6 +11,7 @@ The complete database for LeadPilot: tables, security, storage, vector search an
 | `05_rag.sql` | pgvector, `kb_chunks` (+ auto-fill of company/source from metadata), `match_kb_chunks` search, `conversations`, `messages`, and the helper functions n8n calls: `start_ingestion`, `finish_ingestion`, `chat_context`, `save_chat_turn` |
 | `06_ingest_trigger.sql` | pg_net + Vault + triggers that call n8n Workflow A when a source needs indexing (new URL, finished upload, re-index) |
 | `07_answer_trace.sql` | Adds `messages.answer_trace` (the source passages and reasoning behind each reply) and a `save_chat_turn` that stores it |
+| `08_observability.sql` | Views `turn_health` (one row per reply: route, cited, failure mode, telemetry), `health_daily`, `failure_modes`, and `health_alerts()` with the thresholds from the evaluation PRD. All `security_invoker`, so admins only see their own company |
 
 **Keys**
 - The **publishable** key is in the HTML files. That's safe: RLS limits it to the 6 public widget fields when signed out, and to your own company's rows when signed in.

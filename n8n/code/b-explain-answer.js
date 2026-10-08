@@ -136,5 +136,41 @@ const reasoning = {
   outcome,
 };
 
+// ---------- 4. Telemetry (observability) ----------
+// Reply time is measured. Tokens and cost are ESTIMATES (about 4 characters per token), with per-call
+// overheads calibrated against n8n's measured token usage on 2026-10-08 (executions 249-251):
+// router ~640 in, rewriter ~100, agent ~(system prompt + chat) per turn plus the search results it re-reads,
+// post-check ~570 + the draft. Within about 10% of measured on those runs.
+const start = (from('Validate input') || {}).received_at;
+const rules = from('Build rules') || {};
+const sys = String(rules.system_prompt || '').length;
+const chat = String(rules.chat_input || '').length;
+// On the fallback paths the reply was replaced, so read the agent's steps and draft from "Collect sources".
+const collected = from('Collect sources') || {};
+const steps = agentSteps || (Array.isArray(collected.trace_steps) ? collected.trace_steps : []);
+const draft = String(collected.reply || reply);
+const obsChars = steps.reduce((n, st) => n + JSON.stringify(st.observation || '').length, 0);
+const searches = steps.length;
+let calls = 1, inChars = 2530 + chat, outChars = 88;                      // Intent Router
+if (flag === 'direct_reply') {
+  calls += 2; inChars += (sys + chat) + (2280 + reply.length); outChars += reply.length + 76; // reply + post-check
+} else if (ranAgent || ['fallback_used', 'postcheck_uncertain', 'agent_error'].includes(flag)) {
+  calls += 1; inChars += 400 + chat; outChars += 12;                        // Query Rewriter
+  const agentCalls = searches + 1;                                          // one turn per search + the answer
+  calls += agentCalls;
+  inChars += agentCalls * Math.max(0, sys + chat - 300) + obsChars * agentCalls / 2; // later turns re-read results
+  outChars += draft.length;
+  if (flag !== 'agent_error') { calls += 1; inChars += 2280 + draft.length; outChars += 76; } // Post-check
+}
+const inTok = Math.round(inChars / 4), outTok = Math.round(outChars / 4);
+const telemetry = {
+  latency_ms: start ? Date.now() - start : null,
+  model_calls: calls,
+  search_calls: searches,
+  est_tokens: inTok + outTok,
+  est_cost_usd: Number(((inTok * 0.40 + outTok * 1.60) / 1e6).toFixed(6)), // gpt-4.1-mini list price
+  model: 'gpt-4.1-mini',
+};
+
 const { trace_steps, ...rest } = item; // don't send the raw steps to the widget or the database
-return [{ json: { ...rest, source_details, reasoning } }];
+return [{ json: { ...rest, source_details, reasoning, telemetry } }];

@@ -9,5 +9,6 @@ if (!/^[0-9a-f-]{36}$/i.test(company_id)) error = 'Missing or invalid company_id
 else if (!/^[\w-]{8,64}$/.test(session_id)) error = 'Missing or invalid session_id';
 else if (!message) error = 'Empty message';
 else if (message.length > 1000) error = 'Message too long (max 1000 characters)';
-return [{ json: { ok: !error, error, message, session_id, company_id,
+// received_at: start of the request, so "Explain answer" can record end-to-end reply time.
+return [{ json: { ok: !error, error, message, session_id, company_id, received_at: Date.now(),
   campaign_source: b.campaign_source ? String(b.campaign_source).slice(0, 100) : '' } }];
