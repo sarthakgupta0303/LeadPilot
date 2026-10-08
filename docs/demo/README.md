@@ -1,10 +1,10 @@
 # Live demo (2026-10-08)
 
-A full run of LeadPilot AI on the live system: the admin panel's Preview tab (code on `main`), the Maya chat widget, n8n Workflow B on `ankita301.app.n8n.cloud`, and the `leadpilot-ai` Supabase project. Nothing is mocked.
+A full run of LeadPilot AI on the live system, front end and behind the scenes: the admin panel's Preview tab (code on `main`), the Maya chat widget, n8n Workflow B on `ankita301.app.n8n.cloud`, the `leadpilot-ai` Supabase project, and the same agent in Azure AI Foundry. Nothing is mocked.
 
 ![LeadPilot demo](leadpilot-demo.gif)
 
-Video version: [`leadpilot-demo.mp4`](leadpilot-demo.mp4) (about 40 s, no sound). Individual frames: `01.jpg` to `11.jpg`.
+Video version: [`leadpilot-demo.mp4`](leadpilot-demo.mp4) (about 70 s, no sound). Frames `01.jpg`–`10.jpg` are the prospect's view; `11.jpg`–`18.jpg` are behind the scenes.
 
 > The **📄 Source** and **🧭 How I answered** buttons are hidden in the chat by default (`CONFIG.showAnswerTrace = false` in `widget.js`); the same information goes into the Excel export. They were switched on for this recording only.
 
@@ -23,6 +23,19 @@ Video version: [`leadpilot-demo.mp4`](leadpilot-demo.mp4) (about 40 s, no sound)
 | 9 | "Who is your CEO?" | "I don't have that information yet…" | Honest: no guessing when the knowledge base is silent |
 | 10 | "I'd like to book a demo with your team." | Asks for name and work email | Lead capture: hand-off to sales |
 | 11 | Supabase `turn_health` | Every reply logged | Observability: route, citation, reply time, model calls, tokens, cost |
+
+## Behind the scenes
+
+| Frame | Where | What it shows |
+|---|---|---|
+| 11 | n8n | Execution of "Is there a free trial?": the green path through Intent Router → Query Rewriter → Maya agent (calls `search_knowledge_base` with "free trial availability") → Post-check → Explain answer. The log shows 12.6 s and ~6,000 tokens |
+| 12 | n8n | Execution of the discount request: the Intent Router sends it to the **Blocked** branch in under 1 s (~670 tokens); no search, no agent |
+| 13 | Supabase | The knowledge base: 6 documents, split into chunks, each with a 1,536-dimension pgvector embedding |
+| 14 | Supabase | The `messages` row for the answer: sources, what was searched, outcome, reply time, model calls, cost (`answer_trace`) |
+| 15 | Supabase | `turn_health`: every reply in the demo with route, citation, time, calls, tokens and cost |
+| 16 | Azure AI Foundry | The same agent (LeadPilotAI, gpt-4.1-mini + File Search) answers the same question in 4 s |
+| 17 | Azure AI Foundry | OpenTelemetry trace: invoke agent → file search (2.15 s) → model call (1.04 s) |
+| 18 | Azure AI Foundry | Monitor: agent runs, tokens and cost |
 
 ## Trace of this run
 
