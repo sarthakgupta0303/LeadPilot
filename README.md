@@ -4,7 +4,7 @@
 
 A product-management case study, taken from problem definition to a working, evaluated AI system: **PRD → prototype → data model → workflow automation → agentic RAG → evaluation.**
 
-[**Try it in 5 minutes**](#try-it-in-5-minutes) · [**Demo**](docs/demo/README.md) · [PRD](docs/PRD.md) · [Admin panel flow](docs/workflows/admin-panel.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Evaluation PRD](docs/evaluation-prd.md) · [Run it yourself](docs/setup.md)
+[**Try it in 5 minutes**](#try-it-in-5-minutes) · [**Demo**](docs/demo/README.md) · [Pitch script](docs/pitch/speaker-script.md) · [PRD](docs/PRD.md) · [Admin panel flow](docs/workflows/admin-panel.md) · [Workflows & diagrams](docs/workflows/README.md) · [Build journal](docs/build-journal.md) · [Decision log](docs/decision-log.md) · [Architecture](docs/architecture.md) · [Evaluation](evals/README.md) · [Evaluation PRD](docs/evaluation-prd.md) · [Run it yourself](docs/setup.md)
 
 | | |
 |---|---|
